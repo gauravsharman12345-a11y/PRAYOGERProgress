@@ -580,7 +580,7 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
 
 
 <header>
-  <div class="header-title">PROYARAJ · 180</div>
+  <div class="header-title">PRAYOGER · 180</div>
   <div id="liveClock">--:--:--</div>
   <div class="header-info">
     DAY <span id="headerDay">–</span> / 180<br>
@@ -811,8 +811,8 @@ const REMINDER_TIMES = [
 // ─────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────
-function getProfile() { return JSON.parse(localStorage.getItem('proy_profile') || '{}'); }
-function getDays() { return JSON.parse(localStorage.getItem('proy_days') || '{}'); }
+function getProfile() { return JSON.parse(localStorage.getItem('pray_profile') || '{}'); }
+function getDays() { return JSON.parse(localStorage.getItem('pray_days') || '{}'); }
 function saveStorage(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
 function getCurrentDay() {
@@ -857,7 +857,7 @@ function saveProfile() {
     weight: document.getElementById('weightInput').value,
     startDate: document.getElementById('startDateInput').value
   };
-  saveStorage('proy_profile', p);
+  saveStorage('pray_profile', p);
   showToast('Profile saved!');
   refreshAll();
 }
@@ -965,7 +965,7 @@ function saveDay() {
     lockedAt: new Date().toISOString()
   };
 
-  saveStorage('proy_days', days);
+  saveStorage('pray_days', days);
   showToast(`Day ${selectedDay} sealed forever 🔒`);
   refreshAll();
   loadDayView();
@@ -1145,7 +1145,7 @@ function testNotification() {
     requestNotifPerm();
     return;
   }
-  new Notification('PROYARAJ · Mind Blueprint', {
+  new Notification('PRAYOGER · Mind Blueprint', {
     body: `Day ${getCurrentDay()} — Time to fill your entry! 🧠`,
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c40000"/><text y=".9em" font-size="90">🔴</text></svg>'
   });
@@ -1166,7 +1166,7 @@ function checkReminder() {
       const cur = getCurrentDay();
       const days = getDays();
       if (!days[cur]) {
-        new Notification('PROYARAJ · Reminder', {
+        new Notification('PRAYOGER · Reminder', {
           body: `Day ${cur}: Time to fill your Mind Blueprint entry!`,
           icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c40000"/><text y=".9em" font-size="90">🧠</text></svg>'
         });
@@ -1204,15 +1204,15 @@ function downloadData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `proyaraj_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `prayoger_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   showToast('Data downloaded!');
 }
 
 function resetAll() {
   if (confirm('RESET ALL DATA? This cannot be undone.')) {
-    localStorage.removeItem('proy_days');
-    localStorage.removeItem('proy_profile');
+    localStorage.removeItem('pray_days');
+    localStorage.removeItem('pray_profile');
     showToast('All data reset.');
     refreshAll();
     loadProfile();
@@ -1242,7 +1242,7 @@ function init() {
   const p = getProfile();
   if (!p.startDate) {
     p.startDate = new Date().toISOString().slice(0, 10);
-    saveStorage('proy_profile', p);
+    saveStorage('pray_profile', p);
     document.getElementById('startDateInput').value = p.startDate;
   }
 
