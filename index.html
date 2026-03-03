@@ -15,12 +15,22 @@
     --black: #000000;
     --dark: #0a0a0a;
     --panel: #111111;
+    --panel2: #1a1a1a;
     --border: #1e1e1e;
     --text: #e8e8e8;
+    --text-dim: #666666;
     --muted: #666;
     --locked: #1a0000;
     --locked-border: #3a0000;
     --gold: #d4a017;
+    --green: #2a7a2a;
+    --green-hot: #4aff4a;
+    --slot-a: #0077cc;
+    --slot-b: #9900cc;
+    --slot-c: #cc4400;
+    --missed: #ff4444;
+    --done: #00ff88;
+    --neon-cyan: #00e5ff;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,7 +43,6 @@
     overflow-x: hidden;
   }
 
-  /* Scanline overlay */
   body::before {
     content: '';
     position: fixed;
@@ -53,7 +62,7 @@
   header {
     background: var(--black);
     border-bottom: 2px solid var(--red);
-    padding: 0 20px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -65,7 +74,7 @@
 
   .header-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
+    font-size: 26px;
     letter-spacing: 4px;
     color: var(--red-hot);
     text-shadow: 0 0 20px rgba(255,26,26,0.4);
@@ -81,7 +90,6 @@
 
   .header-info span { color: var(--red-hot); }
 
-  /* CLOCK */
   #liveClock {
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
@@ -89,12 +97,29 @@
     letter-spacing: 2px;
   }
 
+  /* BGM BUTTON */
+  #bgm-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px 10px;
+    transition: all .2s;
+    line-height: 1;
+  }
+  #bgm-btn:hover { border-color: var(--red); color: var(--red-hot); }
+
   /* NAV */
   nav {
     background: var(--panel);
     border-bottom: 1px solid var(--border);
     display: flex;
     padding: 0;
+    position: sticky;
+    top: 64px;
+    z-index: 99;
   }
 
   nav button {
@@ -102,10 +127,10 @@
     background: transparent;
     border: none;
     border-right: 1px solid var(--border);
-    padding: 14px 10px;
+    padding: 14px 6px;
     color: var(--muted);
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.2s;
@@ -129,7 +154,7 @@
   nav button.active::after { transform: scaleX(1); }
 
   /* SECTIONS */
-  .section { display: none; padding: 24px 20px; max-width: 760px; margin: 0 auto; }
+  .section { display: none; padding: 24px 20px 40px; max-width: 760px; margin: 0 auto; }
   .section.active { display: block; animation: fadeIn 0.3s ease; }
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -162,9 +187,7 @@
   }
 
   /* INPUT GROUPS */
-  .input-group {
-    margin-bottom: 16px;
-  }
+  .input-group { margin-bottom: 16px; }
 
   .input-group label {
     display: block;
@@ -175,7 +198,9 @@
     margin-bottom: 6px;
   }
 
-  .input-group input {
+  .input-group input[type="text"],
+  .input-group input[type="number"],
+  .input-group input[type="date"] {
     width: 100%;
     background: #0d0d0d;
     border: 1px solid var(--border);
@@ -265,8 +290,31 @@
     background: transparent;
     border: 1px solid var(--red);
     color: var(--red);
+    margin-top: 10px;
   }
   .btn-outline:hover { background: var(--red); color: white; }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #7a5000, var(--gold));
+    color: #000;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    border-radius: 3px;
+    padding: 14px;
+    width: 100%;
+    margin-top: 12px;
+    transition: all 0.2s;
+    animation: pulseGold 2s ease-in-out infinite;
+  }
+  .btn-gold:hover { box-shadow: 0 0 25px rgba(212,160,23,0.5); }
+
+  @keyframes pulseGold {
+    0%, 100% { box-shadow: 0 0 10px rgba(212,160,23,0.3); }
+    50% { box-shadow: 0 0 25px rgba(212,160,23,0.6); }
+  }
 
   /* PROGRESS */
   .progress-track {
@@ -318,22 +366,68 @@
     color: var(--muted);
   }
 
-  /* TIMELINE */
-  .timeline {
-    position: relative;
-    padding-left: 40px;
+  /* SLOT TRACKER BAR */
+  .slot-tracker {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
   }
 
+  .slot-pill {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    border: 1px solid var(--border);
+    background: #0a0a0a;
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .slot-pill .sp-label { font-size: 10px; letter-spacing: 1px; margin-top: 2px; font-family: 'Share Tech Mono', monospace; }
+
+  .slot-pill.filled-a { background: rgba(0,119,204,0.2); border-color: var(--slot-a); color: #44aaff; }
+  .slot-pill.filled-b { background: rgba(153,0,204,0.2); border-color: var(--slot-b); color: #dd44ff; }
+  .slot-pill.filled-c { background: rgba(204,68,0,0.2);  border-color: var(--slot-c); color: #ff8844; }
+  .slot-pill.active-now { animation: pulseSlot 1.5s ease-in-out infinite; }
+  @keyframes pulseSlot {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  /* SLOT SELECT */
+  .slot-select-row { display: flex; gap: 8px; margin-bottom: 20px; }
+  .slot-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: #0d0d0d;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .slot-btn:hover { color: var(--text); border-color: var(--muted); }
+  .slot-btn.slot-active-a { background: rgba(0,119,204,0.2); border-color: var(--slot-a); color: #44aaff; }
+  .slot-btn.slot-active-b { background: rgba(153,0,204,0.2); border-color: var(--slot-b); color: #dd44ff; }
+  .slot-btn.slot-active-c { background: rgba(204,68,0,0.2);  border-color: var(--slot-c); color: #ff8844; }
+  .slot-btn.slot-saved { opacity: 0.5; cursor: not-allowed; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 40px; }
   .timeline::before {
     content: '';
     position: absolute;
-    left: 14px;
-    top: 0;
-    bottom: 0;
+    left: 14px; top: 0; bottom: 0;
     width: 1px;
     background: linear-gradient(180deg, var(--red), transparent);
   }
-
   .timeline-item {
     position: relative;
     margin-bottom: 20px;
@@ -343,63 +437,35 @@
     border-radius: 4px;
     transition: border-color 0.2s;
   }
-
   .timeline-item::before {
     content: '';
     position: absolute;
-    left: -26px;
-    top: 50%;
+    left: -26px; top: 50%;
     transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
+    width: 10px; height: 10px;
     background: var(--red);
     border-radius: 50%;
     border: 2px solid var(--black);
     box-shadow: 0 0 8px rgba(255,26,26,0.5);
   }
-
   .timeline-item.active-slot { border-color: var(--red); }
   .timeline-item.active-slot::before { background: var(--red-hot); box-shadow: 0 0 12px rgba(255,26,26,0.8); }
   .timeline-item.done::before { background: var(--gold); box-shadow: 0 0 8px rgba(212,160,23,0.5); }
-
-  .tl-time {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--red-hot);
-    letter-spacing: 2px;
-    margin-bottom: 4px;
-  }
-
-  .tl-title {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--text);
-  }
-
+  .tl-time { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--red-hot); letter-spacing: 2px; margin-bottom: 4px; }
+  .tl-title { font-size: 15px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
   .tl-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
-
-  .tl-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 2px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    margin-top: 6px;
-  }
-
-  .tl-badge.active { background: rgba(196,0,0,0.2); color: var(--red-hot); border: 1px solid var(--red-dim); }
-  .tl-badge.done { background: rgba(212,160,23,0.1); color: var(--gold); border: 1px solid rgba(212,160,23,0.3); }
+  .tl-badge { display: inline-block; padding: 2px 8px; border-radius: 2px; font-family: 'Share Tech Mono', monospace; font-size: 11px; margin-top: 6px; }
+  .tl-badge.active   { background: rgba(196,0,0,0.2); color: var(--red-hot); border: 1px solid var(--red-dim); }
+  .tl-badge.done     { background: rgba(212,160,23,0.1); color: var(--gold); border: 1px solid rgba(212,160,23,0.3); }
   .tl-badge.upcoming { background: rgba(50,50,50,0.5); color: var(--muted); border: 1px solid var(--border); }
 
   /* DAY GRID */
   .day-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 5px;
     margin-top: 8px;
   }
-
   .day-cell {
     aspect-ratio: 1;
     border-radius: 3px;
@@ -407,26 +473,22 @@
     align-items: center;
     justify-content: center;
     font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     border: 1px solid var(--border);
     color: var(--muted);
     background: #0a0a0a;
     cursor: default;
+    position: relative;
+    transition: all 0.2s;
   }
-
-  .day-cell.filled {
-    background: rgba(196,0,0,0.15);
-    border-color: var(--red-dim);
-    color: var(--red-hot);
-  }
-
-  .day-cell.today {
-    background: var(--red);
-    border-color: var(--red-hot);
-    color: white;
-    box-shadow: 0 0 10px rgba(255,26,26,0.4);
-    animation: pulse 2s ease-in-out infinite;
-  }
+  .day-cell.partial { background: rgba(100,0,100,0.2); border-color: #660066; color: #cc66cc; }
+  .day-cell.filled  { background: rgba(196,0,0,0.15); border-color: var(--red-dim); color: var(--red-hot); }
+  .day-cell.today   { background: var(--red); border-color: var(--red-hot); color: white; box-shadow: 0 0 10px rgba(255,26,26,0.4); animation: pulse 2s ease-in-out infinite; }
+  .day-cell .slot-dots { position: absolute; bottom: 2px; display: flex; gap: 2px; }
+  .day-cell .slot-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+  .day-cell .slot-dots span.dot-a { background: var(--slot-a); }
+  .day-cell .slot-dots span.dot-b { background: var(--slot-b); }
+  .day-cell .slot-dots span.dot-c { background: var(--slot-c); }
 
   @keyframes pulse {
     0%, 100% { box-shadow: 0 0 8px rgba(255,26,26,0.4); }
@@ -449,10 +511,8 @@
     transition: all 0.2s;
     margin-top: 8px;
   }
-
   #notifStatus.granted { border-color: #2a6a2a; color: #5aff5a; background: rgba(0,100,0,0.1); }
-  #notifStatus.denied { border-color: var(--locked-border); color: var(--red-dim); }
-
+  #notifStatus.denied  { border-color: var(--locked-border); color: var(--red-dim); }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
   /* STATS ROW */
@@ -462,54 +522,15 @@
     gap: 12px;
     margin-bottom: 20px;
   }
-
-  .stat-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px;
-    text-align: center;
-  }
-
-  .stat-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 32px;
-    color: var(--red-hot);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 16px; text-align: center; }
+  .stat-val  { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--red-hot); line-height: 1; }
+  .stat-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
 
   /* CHART */
-  .chart-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-
-  /* LOCKED OVERLAY HINT */
-  .locked-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(212,160,23,0.1);
-    border: 1px solid rgba(212,160,23,0.3);
-    color: var(--gold);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 2px;
-    margin-left: 10px;
-    vertical-align: middle;
-  }
+  .chart-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+  .slot-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .legend-dot { display: inline-flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--muted); }
+  .legend-dot span { width: 10px; height: 10px; border-radius: 50%; }
 
   select {
     width: 100%;
@@ -524,10 +545,25 @@
     margin-bottom: 20px;
     cursor: pointer;
   }
-
   select:focus { border-color: var(--red); }
 
-  /* TOAST NOTIFICATION */
+  textarea {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--red); }
+
+  /* TOAST */
   #toast {
     position: fixed;
     bottom: 30px;
@@ -546,60 +582,174 @@
     max-width: 300px;
     box-shadow: 0 4px 30px rgba(255,26,26,0.2);
   }
-
   #toast.show { transform: translateX(0); }
 
   /* SCHEDULE SECTION */
-  .sched-header {
+  .sched-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .today-date { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  /* FINAL SLOT DOWNLOAD BOX */
+  #finalDownloadBox {
+    display: none;
+    background: rgba(212,160,23,0.08);
+    border: 2px solid var(--gold);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+  #finalDownloadBox h3 { color: var(--gold); margin: 0 0 8px; font-size: 20px; }
+  #finalDownloadBox p  { color: var(--muted); font-size: 13px; margin-bottom: 0; font-family: 'Share Tech Mono', monospace; }
+
+  /* GRID LEGEND */
+  .grid-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--muted); }
+  .grid-legend span { display: flex; align-items: center; gap: 5px; }
+  .gl-box { width: 12px; height: 12px; border-radius: 2px; }
+
+  /* ===== SWIPE CARD STYLES ===== */
+  .swipe-card-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    touch-action: pan-y;
+    margin-bottom: 12px;
+  }
+  .swipe-card {
+    position: relative;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    transition: transform .15s, opacity .15s;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 1;
+  }
+  .swipe-card:active { cursor: grabbing; }
+
+  .swipe-hint {
     display: flex;
     justify-content: space-between;
+    font-size: .7rem;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    letter-spacing: .05em;
+    padding: 0 4px;
+  }
+  .hint-left  { color: var(--missed); }
+  .hint-right { color: var(--done); }
+
+  .swipe-bg-done {
+    position: absolute; inset: 0;
+    background: rgba(0,255,136,.12);
+    border-radius: 8px;
+    display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: flex-end;
+    padding: 0 20px;
+    font-size: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .swipe-bg-missed {
+    position: absolute; inset: 0;
+    background: rgba(255,68,68,.12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .today-date {
+  .slot-status { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .status-pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .7rem;
     font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
+    letter-spacing: .08em;
+    font-weight: 700;
   }
+  .status-done    { background: rgba(0,255,136,.15); color: var(--done);   border: 1px solid rgba(0,255,136,.4); }
+  .status-missed  { background: rgba(255,68,68,.15);  color: var(--missed); border: 1px solid rgba(255,68,68,.4); }
+  .status-pending { background: rgba(255,215,0,.1);   color: var(--gold);   border: 1px solid rgba(255,215,0,.3); }
+
+  .swipe-card-done   { border-color: rgba(0,255,136,.4) !important; }
+  .swipe-card-missed { border-color: rgba(255,68,68,.4) !important; }
+  .swipe-card-active-now { border-color: var(--red) !important; box-shadow: 0 0 12px rgba(255,26,26,.25); }
+
+  /* Swipe progress bar at bottom of card */
+  .swipe-card-bar {
+    height: 2px;
+    border-radius: 2px;
+    margin-top: 12px;
+    background: rgba(255,255,255,.06);
+    overflow: hidden;
+  }
+  .swipe-card-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--red-hot);
+    width: 0%;
+    transition: width .3s;
+  }
+
+  /* Sched tab selector */
+  .sched-tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .sched-tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: #0d0d0d;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .sched-tab.active { background: rgba(196,0,0,.15); border-color: var(--red); color: var(--red-hot); }
 </style>
 </head>
 <body>
-<!-- Ambient Mode 3 -->
-<audio id="waterFlow" loop preload="auto" src="data:audio/wav;base64,UklGRqxYAQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYhYAQAA"></audio>
-<audio id="windAir" loop preload="auto" src="data:audio/wav;base64,UklGRqxYAQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYhYAQAA"></audio>
-<audio id="grassClick" preload="auto" src="data:audio/wav;base64,UklGRqxYAQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYhYAQAA"></audio>
-
-<!-- 🔊 Background Music -->
-<audio id="bgm" loop preload="auto"
-src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAAAAAAAAA//uQZAAAAAADhAAAACwAAAAEAAABkYXRhAAAAAA=="></audio>
-
-<!-- 🔔 Click Sound -->
-<audio id="clickSfx" preload="auto"
-src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAAAAAAAAA//uQZAAAAAACHgAAAFQAAAAEAAABkYXRhAAAAAA=="></audio>
-
 
 <header>
   <div class="header-title">PRAYOGER · 180</div>
   <div id="liveClock">--:--:--</div>
-  <div class="header-info">
-    DAY <span id="headerDay">–</span> / 180<br>
-    <span id="headerName">–</span>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="bgm-btn" title="Toggle BGM">🔇</button>
+    <div class="header-info">
+      DAY <span id="headerDay">–</span> / 180<br>
+      <span id="headerName">–</span>
+    </div>
   </div>
 </header>
 
 <nav>
-  <button class="active" onclick="show('dashboard')">DASHBOARD</button>
-  <button onclick="show('daily')">DAILY ENTRY</button>
-  <button onclick="show('schedule')">SCHEDULE</button>
-  <button onclick="show('graph')">GRAPHS</button>
-  <button onclick="show('profile')">PROFILE</button>
+  <button class="active" onclick="show('dashboard', this)">DASH</button>
+  <button onclick="show('daily', this)">ENTRY</button>
+  <button onclick="show('schedule', this)">SCHED</button>
+  <button onclick="show('graph', this)">GRAPHS</button>
+  <button onclick="show('profile', this)">PROFILE</button>
 </nav>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- DASHBOARD -->
+<!-- ══════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════ -->
 <section id="dashboard" class="section active">
   <div class="stats-row">
     <div class="stat-card">
@@ -607,12 +757,12 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
       <div class="stat-label">Current Day</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" id="statFilled">0</div>
-      <div class="stat-label">Days Filled</div>
+      <div class="stat-val" id="statSlots">0</div>
+      <div class="stat-label">Slots Filled</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" id="statLeft">180</div>
-      <div class="stat-label">Days Left</div>
+      <div class="stat-val" id="statComplete">0</div>
+      <div class="stat-label">Days Complete</div>
     </div>
   </div>
 
@@ -622,26 +772,47 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
       <span style="font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--red-hot);" id="progressPct">0%</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div style="margin-top:8px; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted);" id="slotProgress">0 / 540 SLOTS FILLED</div>
+  </div>
+
+  <div class="panel" style="padding:16px 20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h3 style="margin:0;">TODAY'S SLOTS</h3>
+      <span id="todaySlotCount" style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);">0/3</span>
+    </div>
+    <div class="slot-tracker" id="todaySlotTracker">
+      <div class="slot-pill" id="dash-pill-a">A — MORNING<div class="sp-label">06:00 – 09:00</div></div>
+      <div class="slot-pill" id="dash-pill-b">B — MIDDAY<div class="sp-label">13:00 – 15:00</div></div>
+      <div class="slot-pill" id="dash-pill-c">C — EVENING<div class="sp-label">18:00 – 20:00</div></div>
+    </div>
   </div>
 
   <h3>180-DAY MAP</h3>
   <div class="panel">
     <div class="day-grid" id="dayGrid"></div>
+    <div class="grid-legend">
+      <span><div class="gl-box" style="background:#0a0a0a;border:1px solid var(--border);"></div> Empty</span>
+      <span><div class="gl-box" style="background:rgba(100,0,100,0.3);border:1px solid #660066;"></div> Partial</span>
+      <span><div class="gl-box" style="background:rgba(196,0,0,0.2);border:1px solid var(--red-dim);"></div> Complete</span>
+      <span><div class="gl-box" style="background:var(--red);border:1px solid var(--red-hot);"></div> Today</span>
+    </div>
   </div>
 
   <h3>NOTIFICATIONS</h3>
   <div class="panel">
     <p style="font-size:13px; color:var(--muted); margin-bottom:10px; line-height:1.6;">
-      Enable browser notifications to receive reminders at <b style="color:var(--text)">06:00</b>, <b style="color:var(--text)">13:00</b>, <b style="color:var(--text)">18:00</b> and <b style="color:var(--text)"></b> daily.
+      Reminders at <b style="color:var(--text)">06:00</b> · <b style="color:var(--text)">13:00</b> · <b style="color:var(--text)">18:00</b> · <b style="color:var(--text)">21:00</b> daily.
     </p>
-    <div id="notifStatus" class="upcoming" onclick="requestNotifPerm()">
+    <div id="notifStatus" onclick="requestNotifPerm()">
       <div class="dot"></div>
       <span id="notifLabel">CLICK TO ENABLE NOTIFICATIONS</span>
     </div>
   </div>
 </section>
 
-<!-- DAILY ENTRY -->
+<!-- ══════════════════════════════════════
+     DAILY ENTRY
+══════════════════════════════════════ -->
 <section id="daily" class="section">
   <h2>DAILY ENTRY</h2>
 
@@ -651,12 +822,34 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
   </div>
 
   <div style="margin-bottom:16px;">
-    <label style="font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">VIEW DAY</label>
+    <label style="font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">SELECT DAY</label>
     <select id="daySelect" onchange="loadDayView()"></select>
   </div>
 
+  <div class="slot-tracker" id="entrySlotTracker">
+    <div class="slot-pill" id="pill-a">A — MORNING<div class="sp-label">06:00–09:00</div></div>
+    <div class="slot-pill" id="pill-b">B — MIDDAY<div class="sp-label">13:00–15:00</div></div>
+    <div class="slot-pill" id="pill-c">C — EVENING<div class="sp-label">18:00–20:00</div></div>
+  </div>
+
+  <div class="slot-select-row" id="slotSelectRow">
+    <button class="slot-btn" id="sbt-a" onclick="selectSlot('A'); clickSound();">⬡ SLOT A</button>
+    <button class="slot-btn" id="sbt-b" onclick="selectSlot('B'); clickSound();">⬡ SLOT B</button>
+    <button class="slot-btn" id="sbt-c" onclick="selectSlot('C'); clickSound();">⬡ SLOT C</button>
+  </div>
+
+  <div id="finalDownloadBox">
+    <h3>🏆 DAY COMPLETE!</h3>
+    <p>All 3 slots saved. Download today's final data.</p>
+    <button class="btn-gold" onclick="downloadTodayData(); clickSound();">⬇ DOWNLOAD TODAY'S SLOT DATA</button>
+  </div>
+
   <div class="panel" id="entryPanel">
-    <!-- Dynamic fields -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--red-hot);" id="activeSlotLabel">SLOT A — MORNING</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);" id="activeSlotTime">06:00 – 09:00</div>
+    </div>
+
     <div class="input-group">
       <label>MOOD <span style="color:var(--muted)">(-10 to +10)</span></label>
       <div class="range-wrapper">
@@ -698,19 +891,17 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
     </div>
 
     <div class="input-group" style="margin-top:20px;">
-      <label>DAILY NOTES</label>
-      <textarea id="notesInput"
-        style="width:100%;background:#0d0d0d;border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:80px; transition: border-color 0.2s;"
-        onfocus="this.style.borderColor='var(--red)'"
-        onblur="this.style.borderColor='var(--border)'"
-        placeholder="Anything notable today…"></textarea>
+      <label>SLOT NOTES</label>
+      <textarea id="notesInput" placeholder="Notes for this slot…"></textarea>
     </div>
 
-    <button class="btn" id="saveBtn" onclick="saveDay()">LOCK IN DAY</button>
+    <button class="btn" id="saveBtn" onclick="saveSlot(); clickSound();">🔐 SAVE SLOT</button>
   </div>
 </section>
 
-<!-- SCHEDULE -->
+<!-- ══════════════════════════════════════
+     SCHEDULE  (with Swipe Cards)
+══════════════════════════════════════ -->
 <section id="schedule" class="section">
   <div class="sched-header">
     <h2 style="margin-bottom:0;">DAILY SCHEDULE</h2>
@@ -719,42 +910,77 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
 
   <div class="panel" style="margin-bottom:20px; padding:12px 16px;">
     <div style="display:flex;align-items:center;gap:10px;">
-      <div style="width:10px;height:10px;border-radius:50%;background:var(--red-hot);box-shadow:0 0 8px rgba(255,26,26,0.6);animation:pulse 2s ease-in-out infinite;"></div>
-      <span style="font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--muted);">CURRENT SLOT: </span>
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--red-hot);box-shadow:0 0 8px rgba(255,26,26,0.6);animation:pulse 2s ease-in-out infinite;flex-shrink:0;"></div>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--muted);">CURRENT: </span>
       <span id="currentSlotName" style="font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--red-hot); letter-spacing:1px;">–</span>
     </div>
   </div>
 
-  <div class="timeline" id="timeline"></div>
+  <!-- View Toggle -->
+  <div class="sched-tab-row">
+    <div class="sched-tab active" id="tab-swipe" onclick="switchSchedTab('swipe')">⬡ SWIPE CARDS</div>
+    <div class="sched-tab" id="tab-timeline" onclick="switchSchedTab('timeline')">▶ TIMELINE</div>
+  </div>
 
-  <h3 style="margin-top:28px;">REMINDER TIMES</h3>
+  <!-- SWIPE CARDS VIEW -->
+  <div id="swipeView">
+    <div class="swipe-hint">
+      <span class="hint-left">← SWIPE LEFT = MISSED</span>
+      <span class="hint-right">SWIPE RIGHT = DONE →</span>
+    </div>
+    <div id="swipeCardContainer"></div>
+  </div>
+
+  <!-- TIMELINE VIEW -->
+  <div id="timelineView" style="display:none;">
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <h3 style="margin-top:28px;">DATA SLOTS</h3>
   <div class="panel">
-    <p style="font-size:13px; color:var(--muted); line-height:1.8;">
-      Notifications fire at: 
-      <b style="color:var(--text)">06:00</b> · 
-      <b style="color:var(--text)">13:00</b> · 
-      <b style="color:var(--text)">18:00</b> · 
-      <b style="color:var(--text)"></b>
+    <p style="font-size:13px; color:var(--muted); line-height:1.8; font-family:'Share Tech Mono',monospace;">
+      <span style="color:#44aaff;">■ SLOT A</span> — MORNING · 06:00–09:00<br>
+      <span style="color:#dd44ff;">■ SLOT B</span> — MIDDAY · 13:00–15:00<br>
+      <span style="color:#ff8844;">■ SLOT C</span> — EVENING · 18:00–20:00<br>
     </p>
-    <button class="btn btn-outline" onclick="testNotification()" style="margin-top:12px; padding:10px; font-size:14px;">TEST NOTIFICATION NOW</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px;font-family:'Rajdhani',sans-serif;">Fill all 3 slots to complete a day. Download is unlocked after Slot C.</p>
+    <button class="btn btn-outline" onclick="testNotification(); clickSound();" style="margin-top:12px; padding:10px; font-size:14px;">TEST NOTIFICATION</button>
   </div>
 </section>
 
-<!-- GRAPHS -->
+<!-- ══════════════════════════════════════
+     GRAPHS
+══════════════════════════════════════ -->
 <section id="graph" class="section">
   <h2>GRAPHS</h2>
+
   <div class="chart-panel">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">MOOD PER SLOT</div>
     <canvas id="moodChart" height="140"></canvas>
+    <div class="slot-legend">
+      <div class="legend-dot"><span style="background:var(--slot-a);"></span>Slot A · Morning</div>
+      <div class="legend-dot"><span style="background:var(--slot-b);"></span>Slot B · Midday</div>
+      <div class="legend-dot"><span style="background:var(--slot-c);"></span>Slot C · Evening</div>
+    </div>
   </div>
+
   <div class="chart-panel">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">ENERGY & MOTIVATION</div>
     <canvas id="energyChart" height="140"></canvas>
+    <div class="slot-legend">
+      <div class="legend-dot"><span style="background:var(--gold);"></span>Energy (avg/day)</div>
+      <div class="legend-dot"><span style="background:#5a9fd4;"></span>Motivation (avg/day)</div>
+    </div>
   </div>
+
   <div style="text-align:center; margin-top:20px;">
-    <button class="btn btn-outline" onclick="downloadData()" style="width:auto; padding:12px 30px;">DOWNLOAD JSON</button>
+    <button class="btn btn-outline" onclick="downloadData(); clickSound();" style="width:auto; padding:12px 30px;">⬇ DOWNLOAD ALL DATA (JSON)</button>
   </div>
 </section>
 
-<!-- PROFILE -->
+<!-- ══════════════════════════════════════
+     PROFILE
+══════════════════════════════════════ -->
 <section id="profile" class="section">
   <h2>PROFILE</h2>
   <div class="panel">
@@ -774,69 +1000,118 @@ src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAA
       <label>JOURNEY START DATE <span style="color:var(--muted)">(sets Day 1)</span></label>
       <input id="startDateInput" type="date">
     </div>
-    <button class="btn" onclick="saveProfile()">SAVE PROFILE</button>
+    <button class="btn" onclick="saveProfile(); clickSound();">SAVE PROFILE</button>
   </div>
 
   <div class="panel" style="margin-top:16px;">
-    <h3 style="margin:0 0 12px;">DANGER ZONE</h3>
-    <button class="btn" style="background:var(--locked-border); font-size:14px;" onclick="resetAll()">RESET ALL DATA</button>
+    <h3 style="margin:0 0 12px;">DATA MANAGEMENT</h3>
+    <button class="btn btn-outline" onclick="downloadData(); clickSound();" style="margin-top:0;">⬇ EXPORT ALL DATA (JSON)</button>
+    <button class="btn" style="background:var(--locked-border); font-size:14px; margin-top:10px;" onclick="resetAll()">🗑 RESET ALL DATA</button>
+  </div>
+
+  <div class="panel" style="margin-top:16px;">
+    <h3 style="margin:0 0 8px; font-size:14px;">ABOUT</h3>
+    <p style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); line-height:1.8;">
+      PRAYOGER · MIND BLUEPRINT 180<br>
+      3 slots/day × 180 days = 540 data points<br>
+      All data stored locally in your browser.
+    </p>
   </div>
 </section>
 
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
 <script>
+// ─────────────────────────────────────────
+// AUDIO STATE
+// ─────────────────────────────────────────
+let audioCtx = null;
+let bgmOn    = false;
+
 // ─────────────────────────────────────────
 // SCHEDULE DEFINITIONS
 // ─────────────────────────────────────────
 const SCHEDULE = [
-  { time: '05:00', label: 'WAKE UP', desc: 'Rise, hydrate, set your intention for the day', icon: '🌅' },
-  { time: '05:30', label: 'MORNING MOVEMENT', desc: 'Exercise, stretching or breathwork routine', icon: '⚡' },
-  { time: '06:00', label: 'MIND CHECK-IN', desc: 'Log your morning mood, energy & motivation → FILL ENTRY', icon: '🧠', remind: true },
-  { time: '07:00', label: 'DEEP WORK BLOCK I', desc: 'Focused high-priority task, no distractions', icon: '🔴' },
-  { time: '09:30', label: 'REVIEW & ADJUST', desc: 'Short break, review progress, plan next block', icon: '📋' },
-  { time: '10:00', label: 'DEEP WORK BLOCK II', desc: 'Second focused session on key tasks', icon: '🔴' },
-  { time: '13:00', label: 'MIDDAY CHECK-IN', desc: 'Nutrition, rest and midday mental reset', icon: '⚙️', remind: true },
-  { time: '14:00', label: 'STUDY / SKILL BLOCK', desc: 'Learning, reading or skill-building session', icon: '📖' },
-  { time: '16:30', label: 'REFLECTION WALK', desc: 'Walk outside, think without input', icon: '🚶' },
-  { time: '18:00', label: 'EVENING CHECK-IN', desc: 'Log fear, resistance, energy levels → FILL ENTRY', icon: '🌆', remind: true },
-  { time: '19:00', label: 'CREATIVE / FREE TIME', desc: 'Unstructured creative or social time', icon: '🎯' },
-  { time: '20:30', label: 'WIND DOWN', desc: 'No screens, journaling, light reading', icon: '🌙' },
-  { time: '', label: 'NIGHT REVIEW', desc: 'Final entry lock-in and tomorrow prep', icon: '📝', remind: true },
-  { time: '22:30', label: 'SLEEP', desc: 'Consistent sleep time for recovery and memory consolidation', icon: '💤' }
+  { time: '05:00', label: 'WAKE UP',           desc: 'Rise, hydrate, set your intention',              icon: '🌅' },
+  { time: '05:30', label: 'MORNING MOVEMENT',  desc: 'Exercise, stretching or breathwork',             icon: '⚡' },
+  { time: '06:00', label: '🔵 SLOT A — MIND CHECK-IN', desc: 'Log morning mood, energy & motivation → FILL SLOT A', icon: '🧠', remind: true },
+  { time: '07:00', label: 'DEEP WORK BLOCK I', desc: 'Focused high-priority task, no distractions',   icon: '🔴' },
+  { time: '09:30', label: 'REVIEW & ADJUST',   desc: 'Short break, review progress, plan next block', icon: '📋' },
+  { time: '10:00', label: 'DEEP WORK BLOCK II',desc: 'Second focused session on key tasks',            icon: '🔴' },
+  { time: '13:00', label: '🟣 SLOT B — MIDDAY CHECK-IN', desc: 'Nutrition, rest and midday mental reset → FILL SLOT B', icon: '⚙️', remind: true },
+  { time: '14:00', label: 'STUDY / SKILL',     desc: 'Learning, reading or skill-building session',    icon: '📖' },
+  { time: '16:30', label: 'REFLECTION WALK',   desc: 'Walk outside, think without input',              icon: '🚶' },
+  { time: '18:00', label: '🟠 SLOT C — EVENING CHECK-IN', desc: 'Log fear, resistance, energy → FILL SLOT C (FINAL)', icon: '🌆', remind: true },
+  { time: '19:00', label: 'CREATIVE / FREE',   desc: 'Unstructured creative or social time',           icon: '🎯' },
+  { time: '20:30', label: 'WIND DOWN',         desc: 'No screens, journaling, light reading',          icon: '🌙' },
+  { time: '21:00', label: 'NIGHT REVIEW',      desc: 'Final review and tomorrow prep',                 icon: '📝', remind: true },
+  { time: '22:30', label: 'SLEEP',             desc: 'Consistent sleep for recovery and memory',       icon: '💤' }
 ];
 
-const REMINDER_TIMES = [
-  { h: 6, m: 0 }, { h: 13, m: 0 }, { h: 18, m: 0 }, { h: 21, m: 0 }
-];
+const REMINDER_TIMES = [{ h:6,m:0 }, { h:13,m:0 }, { h:18,m:0 }, { h:21,m:0 }];
+
+const SLOT_DEFS = {
+  A: { start: 6*60,  end: 12*60, label: 'SLOT A — MORNING', time: '06:00 – 09:00', color: '#44aaff' },
+  B: { start: 13*60, end: 17*60, label: 'SLOT B — MIDDAY',  time: '13:00 – 15:00', color: '#dd44ff' },
+  C: { start: 18*60, end: 23*60, label: 'SLOT C — EVENING', time: '18:00 – 20:00', color: '#ff8844' }
+};
+
+let selectedSlot = 'A';
 
 // ─────────────────────────────────────────
-// STATE
+// STORAGE
 // ─────────────────────────────────────────
-function getProfile() { return JSON.parse(localStorage.getItem('pray_profile') || '{}'); }
-function getDays() { return JSON.parse(localStorage.getItem('pray_days') || '{}'); }
-function saveStorage(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function getProfile()  { return JSON.parse(localStorage.getItem('pray_profile') || '{}'); }
+function getDays()     { return JSON.parse(localStorage.getItem('pray_days')    || '{}'); }
+function saveStorage(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 
 function getCurrentDay() {
   const p = getProfile();
   if (!p.startDate) return 1;
   const start = new Date(p.startDate);
-  const now = new Date();
+  const now   = new Date();
   start.setHours(0,0,0,0); now.setHours(0,0,0,0);
-  const diff = Math.floor((now - start) / 86400000) + 1;
+  const diff  = Math.floor((now - start) / 86400000) + 1;
   return Math.max(1, Math.min(180, diff));
+}
+
+// ─────────────────────────────────────────
+// SLOT AUTO-DETECT
+// ─────────────────────────────────────────
+function detectCurrentSlot() {
+  const now   = new Date();
+  const mins  = now.getHours() * 60 + now.getMinutes();
+  if (mins >= SLOT_DEFS.A.start && mins < SLOT_DEFS.B.start) return 'A';
+  if (mins >= SLOT_DEFS.B.start && mins < SLOT_DEFS.C.start) return 'B';
+  if (mins >= SLOT_DEFS.C.start)                              return 'C';
+  return 'A';
 }
 
 // ─────────────────────────────────────────
 // NAV
 // ─────────────────────────────────────────
-function show(id) {
+function show(id, btn) {
+  clickSound();
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.currentTarget.classList.add('active');
-  if (id === 'graph') renderCharts();
-  if (id === 'schedule') renderSchedule();
-  if (id === 'daily') refreshDailySection();
+  if (btn) btn.classList.add('active');
+  if (id === 'graph')    renderCharts();
+  if (id === 'schedule') { renderSchedule(); renderSwipeCards(); }
+  if (id === 'daily')    refreshDailySection();
   if (id === 'dashboard') refreshDashboard();
+}
+
+// ─────────────────────────────────────────
+// SCHED TAB TOGGLE
+// ─────────────────────────────────────────
+function switchSchedTab(tab) {
+  clickSound();
+  document.getElementById('tab-swipe').classList.toggle('active', tab === 'swipe');
+  document.getElementById('tab-timeline').classList.toggle('active', tab === 'timeline');
+  document.getElementById('swipeView').style.display    = tab === 'swipe'    ? 'block' : 'none';
+  document.getElementById('timelineView').style.display = tab === 'timeline' ? 'block' : 'none';
 }
 
 // ─────────────────────────────────────────
@@ -844,17 +1119,17 @@ function show(id) {
 // ─────────────────────────────────────────
 function loadProfile() {
   const p = getProfile();
-  document.getElementById('nameInput').value = p.name || '';
-  document.getElementById('ageInput').value = p.age || '';
-  document.getElementById('weightInput').value = p.weight || '';
+  document.getElementById('nameInput').value      = p.name      || '';
+  document.getElementById('ageInput').value       = p.age       || '';
+  document.getElementById('weightInput').value    = p.weight    || '';
   document.getElementById('startDateInput').value = p.startDate || '';
 }
 
 function saveProfile() {
   const p = {
-    name: document.getElementById('nameInput').value,
-    age: document.getElementById('ageInput').value,
-    weight: document.getElementById('weightInput').value,
+    name:      document.getElementById('nameInput').value,
+    age:       document.getElementById('ageInput').value,
+    weight:    document.getElementById('weightInput').value,
     startDate: document.getElementById('startDateInput').value
   };
   saveStorage('pray_profile', p);
@@ -863,7 +1138,7 @@ function saveProfile() {
 }
 
 // ─────────────────────────────────────────
-// DAY DROPDOWN
+// DAY SELECT
 // ─────────────────────────────────────────
 function buildDaySelect() {
   const sel = document.getElementById('daySelect');
@@ -871,11 +1146,13 @@ function buildDaySelect() {
   const days = getDays();
   sel.innerHTML = '';
   for (let i = 1; i <= 180; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    const locked = days[i] ? ' ✓ LOCKED' : '';
-    const future = i > cur ? ' [future]' : '';
-    opt.textContent = `Day ${i}${locked}${future}`;
+    const opt   = document.createElement('option');
+    opt.value   = i;
+    const d     = days[i];
+    const slots = d ? ['A','B','C'].filter(s => d['slot'+s]).length : 0;
+    const tag   = d && slots === 3 ? ' ✓ DONE' : d ? ` (${slots}/3)` : '';
+    const fut   = i > cur ? ' [future]' : '';
+    opt.textContent = `Day ${i}${tag}${fut}`;
     if (i > cur) opt.style.color = '#444';
     sel.appendChild(opt);
   }
@@ -891,152 +1168,256 @@ function refreshDailySection() {
 }
 
 function loadDayView() {
-  const selectedDay = parseInt(document.getElementById('daySelect').value);
-  const cur = getCurrentDay();
-  const days = getDays();
-  const dayData = days[selectedDay];
-  const banner = document.getElementById('dayStatusBanner');
+  const selDay  = parseInt(document.getElementById('daySelect').value);
+  const cur     = getCurrentDay();
+  const days    = getDays();
+  const dayData = days[selDay] || {};
+  const banner  = document.getElementById('dayStatusBanner');
   const bannerText = document.getElementById('bannerText');
-  const saveBtn = document.getElementById('saveBtn');
-  const inputs = document.querySelectorAll('#entryPanel input, #entryPanel textarea');
 
-  if (dayData) {
-    // LOCKED
-    banner.className = 'status-locked';
-    bannerText.textContent = `DAY ${selectedDay} IS LOCKED — Data sealed, cannot be changed`;
-    saveBtn.disabled = true;
-    saveBtn.textContent = '🔒 DAY LOCKED';
-    inputs.forEach(i => i.disabled = true);
-    // Show stored values
-    setRangeVal('moodInput', 'moodVal', dayData.mood);
-    setRangeVal('energyInput', 'energyVal', dayData.energy);
-    setRangeVal('motivationInput', 'motivVal', dayData.motivation);
-    setRangeVal('fearInput', 'fearVal', dayData.fear);
-    setRangeVal('resistInput', 'resistVal', dayData.resistance);
-    document.getElementById('notesInput').value = dayData.notes || '';
-  } else if (selectedDay > cur) {
-    // FUTURE
-    banner.className = 'status-future';
-    bannerText.textContent = `DAY ${selectedDay} NOT YET REACHED — Come back on the right day`;
+  updatePills(dayData, 'pill-a', 'pill-b', 'pill-c');
+
+  if (selDay > cur) {
+    banner.className  = 'status-future';
+    bannerText.textContent = `DAY ${selDay} NOT REACHED YET`;
+  } else {
+    const count = ['A','B','C'].filter(s => dayData['slot'+s]).length;
+    if (count === 3) {
+      banner.className = 'status-locked';
+      bannerText.textContent = `DAY ${selDay} COMPLETE — All 3 slots sealed`;
+    } else {
+      banner.className = 'status-available';
+      bannerText.textContent = `DAY ${selDay} OPEN — ${count}/3 slots filled`;
+    }
+  }
+
+  const allDone = ['A','B','C'].every(s => dayData['slot'+s]);
+  document.getElementById('finalDownloadBox').style.display = (allDone && selDay === cur) ? 'block' : 'none';
+
+  if (selDay === cur && selDay <= cur) {
+    const auto = detectCurrentSlot();
+    let target = auto;
+    if (dayData['slot'+target]) {
+      const order = ['A','B','C'];
+      target = order.find(s => !dayData['slot'+s]) || auto;
+    }
+    selectSlot(target, dayData);
+  } else {
+    selectSlot('A', dayData);
+  }
+
+  updateSlotButtons(selDay, cur, dayData);
+}
+
+function updatePills(dayData, idA, idB, idC) {
+  ['A','B','C'].forEach((s, i) => {
+    const id   = [idA, idB, idC][i];
+    const pill = document.getElementById(id);
+    if (!pill) return;
+    pill.className = 'slot-pill';
+    if (dayData && dayData['slot'+s]) pill.classList.add('filled-' + s.toLowerCase());
+  });
+}
+
+function updateSlotButtons(selDay, cur, dayData) {
+  ['A','B','C'].forEach(s => {
+    const btn = document.getElementById('sbt-' + s.toLowerCase());
+    if (!btn) return;
+    btn.className = 'slot-btn';
+    const saved = dayData && dayData['slot'+s];
+    if (saved) btn.classList.add('slot-saved');
+    if (s === selectedSlot) btn.classList.add('slot-active-' + s.toLowerCase());
+  });
+
+  const selDay2  = parseInt(document.getElementById('daySelect').value);
+  const days     = getDays();
+  const dayData2 = days[selDay2] || {};
+  const isFuture = selDay2 > getCurrentDay();
+  const slotSaved = dayData2['slot'+selectedSlot];
+  const saveBtn = document.getElementById('saveBtn');
+  if (isFuture) {
     saveBtn.disabled = true;
     saveBtn.textContent = 'NOT YOUR DAY YET';
-    inputs.forEach(i => i.disabled = true);
+  } else if (slotSaved) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = `✓ SLOT ${selectedSlot} SAVED`;
+    loadSlotData(dayData2['slot'+selectedSlot]);
+  } else {
+    saveBtn.disabled = false;
+    saveBtn.textContent = `🔐 SAVE SLOT ${selectedSlot}`;
+  }
+}
+
+function selectSlot(s, dayDataArg) {
+  selectedSlot = s;
+  const def = SLOT_DEFS[s];
+  document.getElementById('activeSlotLabel').textContent = def.label;
+  document.getElementById('activeSlotTime').textContent  = def.time;
+  document.getElementById('activeSlotLabel').style.color = def.color;
+
+  const selDay   = parseInt(document.getElementById('daySelect').value);
+  const days     = getDays();
+  const dayData  = dayDataArg || days[selDay] || {};
+  const slotData = dayData['slot'+s];
+
+  ['A','B','C'].forEach(x => {
+    const btn = document.getElementById('sbt-' + x.toLowerCase());
+    if (!btn) return;
+    btn.className = 'slot-btn';
+    if (dayData['slot'+x]) btn.classList.add('slot-saved');
+    if (x === s) btn.classList.add('slot-active-' + x.toLowerCase());
+  });
+
+  const saveBtn = document.getElementById('saveBtn');
+  if (slotData) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = `✓ SLOT ${s} SAVED`;
+    loadSlotData(slotData);
+  } else if (selDay > getCurrentDay()) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'NOT YOUR DAY YET';
     resetInputs();
   } else {
-    // TODAY / AVAILABLE
-    banner.className = 'status-available';
-    bannerText.textContent = `DAY ${selectedDay} OPEN — Fill and lock your data now`;
     saveBtn.disabled = false;
-    saveBtn.textContent = '🔐 LOCK IN DAY';
-    inputs.forEach(i => i.disabled = false);
+    saveBtn.textContent = `🔐 SAVE SLOT ${s}`;
     resetInputs();
   }
 }
 
-function setRangeVal(inputId, valId, val) {
+function loadSlotData(d) {
+  if (!d) return;
+  setRange('moodInput',       'moodVal',    d.mood       ?? 0);
+  setRange('energyInput',     'energyVal',  d.energy     ?? 5);
+  setRange('motivationInput', 'motivVal',   d.motivation ?? 5);
+  setRange('fearInput',       'fearVal',    d.fear       ?? 5);
+  setRange('resistInput',     'resistVal',  d.resistance ?? 5);
+  document.getElementById('notesInput').value = d.notes || '';
+}
+
+function setRange(inputId, valId, val) {
   document.getElementById(inputId).value = val;
   document.getElementById(valId).textContent = val;
 }
 
 function resetInputs() {
-  setRangeVal('moodInput', 'moodVal', 0);
-  setRangeVal('energyInput', 'energyVal', 5);
-  setRangeVal('motivationInput', 'motivVal', 5);
-  setRangeVal('fearInput', 'fearVal', 5);
-  setRangeVal('resistInput', 'resistVal', 5);
+  setRange('moodInput',       'moodVal',    0);
+  setRange('energyInput',     'energyVal',  5);
+  setRange('motivationInput', 'motivVal',   5);
+  setRange('fearInput',       'fearVal',    5);
+  setRange('resistInput',     'resistVal',  5);
   document.getElementById('notesInput').value = '';
 }
 
-function saveDay() {
-  const selectedDay = parseInt(document.getElementById('daySelect').value);
-  const cur = getCurrentDay();
+// ─────────────────────────────────────────
+// SAVE SLOT
+// ─────────────────────────────────────────
+function saveSlot() {
+  const selDay = parseInt(document.getElementById('daySelect').value);
+  const cur    = getCurrentDay();
+
+  if (selDay > cur) { showToast('Cannot fill a future day!'); return; }
+
   const days = getDays();
+  if (!days[selDay]) days[selDay] = {};
 
-  if (days[selectedDay]) { showToast('This day is already locked!'); return; }
-  if (selectedDay > cur) { showToast('Cannot fill a future day!'); return; }
+  if (days[selDay]['slot'+selectedSlot]) {
+    showToast(`Slot ${selectedSlot} already saved!`); return;
+  }
 
-  days[selectedDay] = {
-    mood: parseInt(document.getElementById('moodInput').value),
-    energy: parseInt(document.getElementById('energyInput').value),
-    motivation: parseInt(document.getElementById('motivationInput').value),
-    fear: parseInt(document.getElementById('fearInput').value),
-    resistance: parseInt(document.getElementById('resistInput').value),
-    notes: document.getElementById('notesInput').value,
-    lockedAt: new Date().toISOString()
+  days[selDay]['slot'+selectedSlot] = {
+    mood:        parseInt(document.getElementById('moodInput').value),
+    energy:      parseInt(document.getElementById('energyInput').value),
+    motivation:  parseInt(document.getElementById('motivationInput').value),
+    fear:        parseInt(document.getElementById('fearInput').value),
+    resistance:  parseInt(document.getElementById('resistInput').value),
+    notes:       document.getElementById('notesInput').value,
+    savedAt:     new Date().toISOString()
   };
 
   saveStorage('pray_days', days);
-  showToast(`Day ${selectedDay} sealed forever 🔒`);
+
+  const count = ['A','B','C'].filter(s => days[selDay]['slot'+s]).length;
+  showToast(`Slot ${selectedSlot} saved! (${count}/3 today) 🔒`);
+
+  if (selectedSlot === 'C' && count === 3 && selDay === cur) {
+    triggerFinalSlotDownload(selDay, days[selDay]);
+  }
+
   refreshAll();
   loadDayView();
 }
 
 // ─────────────────────────────────────────
-// SCHEDULE
+// FINAL SLOT DOWNLOAD
 // ─────────────────────────────────────────
-function renderSchedule() {
-  const now = new Date();
-  const currentMins = now.getHours() * 60 + now.getMinutes();
+function triggerFinalSlotDownload(day, dayData) {
+  document.getElementById('finalDownloadBox').style.display = 'block';
+  showToast('🏆 Day complete! Download your data below.');
+}
 
-  document.getElementById('schedDate').textContent =
-    now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+function downloadTodayData() {
+  const cur     = getCurrentDay();
+  const days    = getDays();
+  const profile = getProfile();
+  const data    = { exportType: 'final_slot_of_day', day: cur, exportedAt: new Date().toISOString(), profile, dayData: days[cur] || {} };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `prayoger_day${cur}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Day data downloaded! ⬇');
+}
 
-  const tl = document.getElementById('timeline');
-  tl.innerHTML = '';
-
-  let activeSlot = null;
-
-  SCHEDULE.forEach((slot, i) => {
-    const [sh, sm] = slot.time.split(':').map(Number);
-    const slotMins = sh * 60 + sm;
-    const nextSlot = SCHEDULE[i + 1];
-    const nextMins = nextSlot
-      ? nextSlot.time.split(':').map(Number).reduce((h, m) => h * 60 + m)
-      : 24 * 60;
-
-    const isActive = currentMins >= slotMins && currentMins < nextMins;
-    const isDone = currentMins >= nextMins;
-
-    if (isActive) activeSlot = slot.label;
-
-    const item = document.createElement('div');
-    item.className = `timeline-item${isActive ? ' active-slot' : isDone ? ' done' : ''}`;
-
-    let badgeHtml = '';
-    if (isActive) badgeHtml = `<div class="tl-badge active">▶ NOW</div>`;
-    else if (isDone) badgeHtml = `<div class="tl-badge done">✓ DONE</div>`;
-    else badgeHtml = `<div class="tl-badge upcoming">UPCOMING</div>`;
-
-    item.innerHTML = `
-      <div class="tl-time">${slot.time}${slot.remind ? ' 🔔' : ''}</div>
-      <div class="tl-title">${slot.icon} ${slot.label}</div>
-      <div class="tl-desc">${slot.desc}</div>
-      ${badgeHtml}
-    `;
-    tl.appendChild(item);
-  });
-
-  document.getElementById('currentSlotName').textContent = activeSlot || 'Between slots';
+function downloadData() {
+  const data = { exportType: 'full_export', exportedAt: new Date().toISOString(), profile: getProfile(), days: getDays() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `prayoger_full_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Full export downloaded!');
 }
 
 // ─────────────────────────────────────────
 // DASHBOARD
 // ─────────────────────────────────────────
 function refreshDashboard() {
-  const cur = getCurrentDay();
-  const days = getDays();
-  const filled = Object.keys(days).length;
+  const cur     = getCurrentDay();
+  const days    = getDays();
   const profile = getProfile();
 
-  document.getElementById('statDay').textContent = cur;
-  document.getElementById('statFilled').textContent = filled;
-  document.getElementById('statLeft').textContent = 180 - filled;
-  document.getElementById('headerDay').textContent = cur;
+  document.getElementById('headerDay').textContent  = cur;
   document.getElementById('headerName').textContent = profile.name || 'WARRIOR';
+  document.getElementById('statDay').textContent    = cur;
 
-  const pct = Math.round((filled / 180) * 100);
+  let totalSlots = 0, completeDays = 0;
+  for (let i = 1; i <= 180; i++) {
+    const d = days[i];
+    if (!d) continue;
+    const s = ['A','B','C'].filter(x => d['slot'+x]).length;
+    totalSlots += s;
+    if (s === 3) completeDays++;
+  }
+
+  document.getElementById('statSlots').textContent    = totalSlots;
+  document.getElementById('statComplete').textContent = completeDays;
+
+  const pct = Math.round((completeDays / 180) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressPct').textContent  = pct + '%';
+  document.getElementById('slotProgress').textContent = `${totalSlots} / 540 SLOTS FILLED`;
+
+  const todayData  = days[cur] || {};
+  const todayCount = ['A','B','C'].filter(s => todayData['slot'+s]).length;
+  document.getElementById('todaySlotCount').textContent = todayCount + '/3';
+  updatePills(todayData, 'dash-pill-a', 'dash-pill-b', 'dash-pill-c');
+
+  const active     = detectCurrentSlot();
+  const activePillId = { A:'dash-pill-a', B:'dash-pill-b', C:'dash-pill-c' }[active];
+  const activePill   = document.getElementById(activePillId);
+  if (activePill && !activePill.classList.contains('filled-' + active.toLowerCase())) {
+    activePill.classList.add('active-now');
+  }
 
   renderDayGrid(cur, days);
   updateNotifUI();
@@ -1047,9 +1428,30 @@ function renderDayGrid(cur, days) {
   grid.innerHTML = '';
   for (let i = 1; i <= 180; i++) {
     const cell = document.createElement('div');
-    cell.className = 'day-cell' + (days[i] ? ' filled' : '') + (i === cur ? ' today' : '');
-    cell.title = days[i] ? `Day ${i} — Locked` : (i === cur ? `Day ${i} — Today` : `Day ${i}`);
-    cell.textContent = i;
+    const d    = days[i];
+    const slots = d ? ['A','B','C'].filter(s => d['slot'+s]).length : 0;
+
+    cell.className = 'day-cell';
+    if (i === cur) cell.classList.add('today');
+    else if (slots === 3) cell.classList.add('filled');
+    else if (slots > 0)  cell.classList.add('partial');
+
+    const num = document.createElement('span');
+    num.textContent = i;
+    cell.appendChild(num);
+
+    if (d && slots > 0 && i !== cur) {
+      const dotsDiv = document.createElement('div');
+      dotsDiv.className = 'slot-dots';
+      ['A','B','C'].forEach(s => {
+        const dot = document.createElement('span');
+        if (d['slot'+s]) dot.classList.add('dot-' + s.toLowerCase());
+        dotsDiv.appendChild(dot);
+      });
+      cell.appendChild(dotsDiv);
+    }
+
+    cell.title = `Day ${i} — ${slots}/3 slots`;
     grid.appendChild(cell);
   }
 }
@@ -1061,22 +1463,30 @@ let moodChart, energyChart;
 
 function renderCharts() {
   const days = getDays();
-  const labels = [], moodData = [], energyData = [], motivData = [];
+  const labels = [], moodA = [], moodB = [], moodC = [], energyData = [], motivData = [];
 
   for (let i = 1; i <= 180; i++) {
-    if (days[i]) {
-      labels.push('D' + i);
-      moodData.push(days[i].mood);
-      energyData.push(days[i].energy);
-      motivData.push(days[i].motivation);
-    }
+    const d = days[i];
+    if (!d) continue;
+    const hasAny = ['A','B','C'].some(s => d['slot'+s]);
+    if (!hasAny) continue;
+    labels.push('D' + i);
+    moodA.push(d.slotA ? d.slotA.mood : null);
+    moodB.push(d.slotB ? d.slotB.mood : null);
+    moodC.push(d.slotC ? d.slotC.mood : null);
+    const savedSlots = ['A','B','C'].map(s => d['slot'+s]).filter(Boolean);
+    const avgE = savedSlots.reduce((a, s) => a + (s.energy     || 0), 0) / savedSlots.length;
+    const avgM = savedSlots.reduce((a, s) => a + (s.motivation || 0), 0) / savedSlots.length;
+    energyData.push(Math.round(avgE * 10) / 10);
+    motivData.push(Math.round(avgM * 10) / 10);
   }
 
   const cfg = {
     responsive: true,
+    spanGaps: true,
     plugins: { legend: { labels: { color: '#888', font: { family: 'Rajdhani' } } } },
     scales: {
-      x: { ticks: { color: '#555' }, grid: { color: '#1a1a1a' } },
+      x: { ticks: { color: '#555', maxTicksLimit: 10 }, grid: { color: '#1a1a1a' } },
       y: { ticks: { color: '#555' }, grid: { color: '#1a1a1a' } }
     }
   };
@@ -1086,15 +1496,11 @@ function renderCharts() {
     type: 'line',
     data: {
       labels,
-      datasets: [{
-        label: 'Mood',
-        data: moodData,
-        borderColor: '#c40000',
-        backgroundColor: 'rgba(196,0,0,0.08)',
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#ff1a1a'
-      }]
+      datasets: [
+        { label: 'Slot A Mood', data: moodA, borderColor: '#0077cc', backgroundColor: 'rgba(0,119,204,0.06)', tension: 0.4, pointRadius: 3 },
+        { label: 'Slot B Mood', data: moodB, borderColor: '#9900cc', backgroundColor: 'rgba(153,0,204,0.06)', tension: 0.4, pointRadius: 3 },
+        { label: 'Slot C Mood', data: moodC, borderColor: '#cc4400', backgroundColor: 'rgba(204,68,0,0.06)',  tension: 0.4, pointRadius: 3 }
+      ]
     },
     options: { ...cfg }
   });
@@ -1105,8 +1511,8 @@ function renderCharts() {
     data: {
       labels,
       datasets: [
-        { label: 'Energy', data: energyData, borderColor: '#d4a017', tension: 0.4, pointBackgroundColor: '#d4a017' },
-        { label: 'Motivation', data: motivData, borderColor: '#5a9fd4', tension: 0.4, pointBackgroundColor: '#5a9fd4' }
+        { label: 'Energy (avg)',     data: energyData, borderColor: '#d4a017', tension: 0.4, pointRadius: 3 },
+        { label: 'Motivation (avg)', data: motivData,  borderColor: '#5a9fd4', tension: 0.4, pointRadius: 3 }
       ]
     },
     options: { ...cfg }
@@ -1114,63 +1520,262 @@ function renderCharts() {
 }
 
 // ─────────────────────────────────────────
+// SCHEDULE / TIMELINE
+// ─────────────────────────────────────────
+function renderSchedule() {
+  const now     = new Date();
+  const curMins = now.getHours() * 60 + now.getMinutes();
+
+  document.getElementById('schedDate').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+
+  let activeSlot = null;
+
+  SCHEDULE.forEach((slot, i) => {
+    if (!slot.time) return;
+    const [sh, sm] = slot.time.split(':').map(Number);
+    const slotMins = sh * 60 + sm;
+    const next     = SCHEDULE[i + 1];
+    const nextMins = next && next.time
+      ? next.time.split(':').map(Number).reduce((h, m) => h * 60 + m)
+      : 24 * 60;
+
+    const isActive = curMins >= slotMins && curMins < nextMins;
+    const isDone   = curMins >= nextMins;
+
+    if (isActive) activeSlot = slot.label;
+
+    const item = document.createElement('div');
+    item.className = `timeline-item${isActive ? ' active-slot' : isDone ? ' done' : ''}`;
+
+    let badge = '';
+    if (isActive) badge = `<div class="tl-badge active">▶ NOW</div>`;
+    else if (isDone) badge = `<div class="tl-badge done">✓ DONE</div>`;
+    else badge = `<div class="tl-badge upcoming">UPCOMING</div>`;
+
+    item.innerHTML = `
+      <div class="tl-time">${slot.time}${slot.remind ? ' 🔔' : ''}</div>
+      <div class="tl-title">${slot.icon} ${slot.label}</div>
+      <div class="tl-desc">${slot.desc}</div>
+      ${badge}
+    `;
+    tl.appendChild(item);
+  });
+
+  document.getElementById('currentSlotName').textContent = activeSlot || 'Between slots';
+}
+
+// ─────────────────────────────────────────
+// SWIPE CARD SYSTEM
+// ─────────────────────────────────────────
+let scheduleStatus = {};
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadSwipeStatus() {
+  try {
+    scheduleStatus = JSON.parse(localStorage.getItem('sched_status_' + getTodayKey()) || '{}');
+  } catch(e) { scheduleStatus = {}; }
+}
+
+function saveSwipeStatus() {
+  localStorage.setItem('sched_status_' + getTodayKey(), JSON.stringify(scheduleStatus));
+}
+
+function renderSwipeCards() {
+  loadSwipeStatus();
+  const container = document.getElementById('swipeCardContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const now     = new Date();
+  const curMins = now.getHours() * 60 + now.getMinutes();
+
+  SCHEDULE.forEach((slot, i) => {
+    if (!slot.time) return;
+
+    const [sh, sm] = slot.time.split(':').map(Number);
+    const slotMins = sh * 60 + sm;
+    const next     = SCHEDULE[i + 1];
+    const nextMins = next && next.time
+      ? next.time.split(':').map(Number).reduce((h, m) => h * 60 + m)
+      : 24 * 60;
+
+    const isActive = curMins >= slotMins && curMins < nextMins;
+    const isDone   = curMins >= nextMins;
+
+    const status = scheduleStatus[i] || (isDone ? 'auto-past' : 'pending');
+
+    const wrap = document.createElement('div');
+    wrap.className = 'swipe-card-wrap';
+
+    const bgDone   = document.createElement('div');
+    bgDone.className = 'swipe-bg-done';
+    bgDone.innerHTML = '✓';
+
+    const bgMissed = document.createElement('div');
+    bgMissed.className = 'swipe-bg-missed';
+    bgMissed.innerHTML = '✗';
+
+    const card = document.createElement('div');
+    card.className = 'swipe-card';
+    if (isActive) card.classList.add('swipe-card-active-now');
+    if (status === 'done')   card.classList.add('swipe-card-done');
+    if (status === 'missed') card.classList.add('swipe-card-missed');
+
+    let pillHTML = '';
+    if (status === 'done')
+      pillHTML = '<span class="status-pill status-done">✓ DONE</span>';
+    else if (status === 'missed')
+      pillHTML = '<span class="status-pill status-missed">✗ MISSED</span>';
+    else if (isActive)
+      pillHTML = '<span class="status-pill status-pending" style="color:var(--red-hot);border-color:rgba(255,26,26,.5);">▶ NOW</span>';
+    else if (isDone)
+      pillHTML = '<span class="status-pill status-pending">PAST</span>';
+    else
+      pillHTML = '<span class="status-pill status-pending">UPCOMING</span>';
+
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red-hot);letter-spacing:2px;margin-bottom:4px;">
+            ${slot.time}${slot.remind ? ' 🔔' : ''}
+          </div>
+          <div style="font-size:15px;font-weight:700;letter-spacing:1px;color:var(--text);">
+            ${slot.icon} ${slot.label}
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px;">${slot.desc}</div>
+        </div>
+      </div>
+      <div class="slot-status">${pillHTML}</div>
+      <div class="swipe-card-bar"><div class="swipe-card-bar-fill" id="bar-${i}"></div></div>
+    `;
+
+    wrap.appendChild(bgDone);
+    wrap.appendChild(bgMissed);
+    wrap.appendChild(card);
+    container.appendChild(wrap);
+
+    addSwipeEvents(card, bgDone, bgMissed, i);
+  });
+}
+
+function addSwipeEvents(card, bgDone, bgMissed, index) {
+  let startX = 0, curX = 0, dragging = false;
+  const THRESHOLD = 75;
+
+  function onStart(x) {
+    startX = x; curX = x; dragging = true;
+    card.style.transition = 'none';
+  }
+
+  function onMove(x) {
+    if (!dragging) return;
+    curX = x;
+    const dx    = curX - startX;
+    const ratio = Math.min(Math.abs(dx) / THRESHOLD, 1);
+    card.style.transform = `translateX(${dx}px)`;
+    // Show bar fill as drag indicator
+    const bar = document.getElementById('bar-' + index);
+    if (bar) bar.style.width = (ratio * 100) + '%';
+    if (dx > 0) {
+      bgDone.style.opacity   = ratio;
+      bgMissed.style.opacity = 0;
+      if (bar) bar.style.background = 'var(--done)';
+    } else {
+      bgMissed.style.opacity = ratio;
+      bgDone.style.opacity   = 0;
+      if (bar) bar.style.background = 'var(--missed)';
+    }
+  }
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition  = '';
+    card.style.transform   = '';
+    bgDone.style.opacity   = 0;
+    bgMissed.style.opacity = 0;
+    const bar = document.getElementById('bar-' + index);
+    if (bar) { bar.style.width = '0%'; }
+
+    const dx = curX - startX;
+    if (dx > THRESHOLD) {
+      setSwipeStatus(index, 'done');
+    } else if (dx < -THRESHOLD) {
+      setSwipeStatus(index, 'missed');
+    }
+  }
+
+  card.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+  card.addEventListener('touchmove',  e => { e.stopPropagation(); onMove(e.touches[0].clientX); }, { passive: true });
+  card.addEventListener('touchend',   onEnd);
+
+  card.addEventListener('mousedown', e => { onStart(e.clientX); e.preventDefault(); });
+  document.addEventListener('mousemove', e => { if (dragging) onMove(e.clientX); });
+  document.addEventListener('mouseup',   () => { if (dragging) onEnd(); });
+}
+
+function setSwipeStatus(index, status) {
+  swipeSound();
+  scheduleStatus[index] = status;
+  saveSwipeStatus();
+  renderSwipeCards();
+  const slot = SCHEDULE[index];
+  showToast(status === 'done'
+    ? `✓ ${slot.label} — DONE!`
+    : `✗ ${slot.label} — Missed`
+  );
+}
+
+// ─────────────────────────────────────────
 // NOTIFICATIONS
 // ─────────────────────────────────────────
 function updateNotifUI() {
-  const el = document.getElementById('notifStatus');
+  const el    = document.getElementById('notifStatus');
   const label = document.getElementById('notifLabel');
   if (!('Notification' in window)) {
-    el.className = 'denied'; label.textContent = 'NOT SUPPORTED IN THIS BROWSER'; return;
+    el.className = 'denied'; label.textContent = 'NOT SUPPORTED'; return;
   }
   if (Notification.permission === 'granted') {
     el.className = 'granted'; label.textContent = 'NOTIFICATIONS ACTIVE';
   } else if (Notification.permission === 'denied') {
-    el.className = 'denied'; label.textContent = 'NOTIFICATIONS BLOCKED — ALLOW IN BROWSER';
+    el.className = 'denied'; label.textContent = 'BLOCKED — ALLOW IN BROWSER';
   } else {
-    el.className = ''; label.textContent = 'CLICK TO ENABLE NOTIFICATIONS';
+    el.className = ''; label.textContent = 'CLICK TO ENABLE';
   }
 }
 
 function requestNotifPerm() {
-  if (!('Notification' in window)) { showToast('Notifications not supported'); return; }
+  if (!('Notification' in window)) { showToast('Not supported'); return; }
   Notification.requestPermission().then(p => {
     updateNotifUI();
-    if (p === 'granted') showToast('Notifications enabled! 🔔');
-    else showToast('Notifications blocked. Enable in browser settings.');
+    showToast(p === 'granted' ? 'Notifications enabled 🔔' : 'Blocked — check browser settings');
   });
 }
 
 function testNotification() {
-  if (Notification.permission !== 'granted') {
-    requestNotifPerm();
-    return;
-  }
-  new Notification('PRAYOGER · Mind Blueprint', {
-    body: `Day ${getCurrentDay()} — Time to fill your entry! 🧠`,
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c40000"/><text y=".9em" font-size="90">🔴</text></svg>'
-  });
+  if (Notification.permission !== 'granted') { requestNotifPerm(); return; }
+  new Notification('PRAYOGER · Mind Blueprint', { body: `Day ${getCurrentDay()} — Time to fill your slot! 🧠` });
   showToast('Test notification sent!');
 }
 
 let lastNotifMinute = -1;
 function checkReminder() {
   if (Notification.permission !== 'granted') return;
-  const now = new Date();
+  const now  = new Date();
   const h = now.getHours(), m = now.getMinutes();
-  const minuteId = h * 60 + m;
-  if (minuteId === lastNotifMinute) return;
-
+  const mId  = h * 60 + m;
+  if (mId === lastNotifMinute) return;
   REMINDER_TIMES.forEach(t => {
     if (h === t.h && m === t.m) {
-      lastNotifMinute = minuteId;
-      const cur = getCurrentDay();
-      const days = getDays();
-      if (!days[cur]) {
-        new Notification('PRAYOGER · Reminder', {
-          body: `Day ${cur}: Time to fill your Mind Blueprint entry!`,
-          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c40000"/><text y=".9em" font-size="90">🧠</text></svg>'
-        });
-      }
+      lastNotifMinute = mId;
+      new Notification('PRAYOGER · Reminder', { body: `Day ${getCurrentDay()}: Fill your Mind Blueprint slot now!` });
     }
   });
 }
@@ -1179,9 +1784,8 @@ function checkReminder() {
 // LIVE CLOCK
 // ─────────────────────────────────────────
 function updateClock() {
-  const now = new Date();
   document.getElementById('liveClock').textContent =
-    now.toLocaleTimeString('en-US', { hour12: false });
+    new Date().toLocaleTimeString('en-US', { hour12: false });
 }
 
 // ─────────────────────────────────────────
@@ -1197,18 +1801,8 @@ function showToast(msg) {
 }
 
 // ─────────────────────────────────────────
-// DOWNLOAD
+// RESET
 // ─────────────────────────────────────────
-function downloadData() {
-  const data = { profile: getProfile(), days: getDays(), exportedAt: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `prayoger_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  showToast('Data downloaded!');
-}
-
 function resetAll() {
   if (confirm('RESET ALL DATA? This cannot be undone.')) {
     localStorage.removeItem('pray_days');
@@ -1220,25 +1814,190 @@ function resetAll() {
 }
 
 // ─────────────────────────────────────────
-// INIT
+// REFRESH
 // ─────────────────────────────────────────
 function refreshAll() {
   refreshDashboard();
 }
 
+// ─────────────────────────────────────────
+// ===== SOUND SYSTEM =====
+// ─────────────────────────────────────────
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function clickSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.start(); osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+function swipeSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.start(); osc.stop(ctx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+// BGM — Techno beat generator
+let bgmRunning  = false;
+let bgmScheduler = null;
+let nextBeatTime = 0;
+let beatStep     = 0;
+const BPM      = 138;
+const BEAT_LEN = 60 / BPM;
+
+const kickPat  = [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0];
+const snarePat = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0];
+const hatPat   = [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0];
+const bassSeq  = [55,0,0,55, 0,55,0,0, 55,0,0,55, 0,55,0,55];
+
+function scheduleBeat(time) {
+  const ctx      = getAudioCtx();
+  const step     = beatStep % 16;
+  const stepTime = BEAT_LEN / 4;
+
+  // KICK
+  if (kickPat[step]) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.setValueAtTime(150, time);
+    osc.frequency.exponentialRampToValueAtTime(0.001, time + 0.3);
+    gain.gain.setValueAtTime(0.55, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(time); osc.stop(time + 0.35);
+  }
+  // SNARE
+  if (snarePat[step]) {
+    const buf  = ctx.createBuffer(1, ctx.sampleRate * 0.15, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1);
+    const src  = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'highpass'; filt.frequency.value = 1500;
+    src.buffer = buf;
+    gain.gain.setValueAtTime(0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+    src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+    src.start(time);
+  }
+  // HI-HAT
+  if (hatPat[step]) {
+    const buf  = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1);
+    const src  = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'highpass'; filt.frequency.value = 8000;
+    src.buffer = buf;
+    gain.gain.setValueAtTime(0.12, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+    src.start(time);
+  }
+  // BASS SYNTH
+  if (bassSeq[step] > 0) {
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 400;
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(bassSeq[step], time);
+    gain.gain.setValueAtTime(0.18, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + stepTime * 3);
+    osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+    osc.start(time); osc.stop(time + stepTime * 3 + 0.05);
+  }
+
+  beatStep++;
+  nextBeatTime += stepTime;
+}
+
+function bgmLoop() {
+  try {
+    const ctx = getAudioCtx();
+    const lookahead = 0.1;
+    while (nextBeatTime < ctx.currentTime + lookahead) {
+      scheduleBeat(nextBeatTime);
+    }
+  } catch(e) {}
+}
+
+function startBGM() {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    nextBeatTime = ctx.currentTime + 0.05;
+    beatStep     = 0;
+    bgmRunning   = true;
+    bgmScheduler = setInterval(bgmLoop, 25);
+    document.getElementById('bgm-btn').textContent = '🔊';
+    bgmOn = true;
+  } catch(e) {}
+}
+
+function stopBGM() {
+  clearInterval(bgmScheduler);
+  bgmRunning = false;
+  bgmOn      = false;
+  document.getElementById('bgm-btn').textContent = '🔇';
+}
+
+document.getElementById('bgm-btn').addEventListener('click', () => {
+  if (bgmOn) stopBGM(); else startBGM();
+});
+
+// Resume audio context on any click
+document.addEventListener('click', () => {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+      if (!bgmRunning && bgmOn) startBGM();
+    }
+  } catch(e) {}
+}, { once: false });
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
 function init() {
   loadProfile();
   buildDaySelect();
   refreshAll();
   renderSchedule();
+  renderSwipeCards();
   updateClock();
   setInterval(updateClock, 1000);
   setInterval(checkReminder, 30000);
   setInterval(() => {
-    if (document.getElementById('schedule').classList.contains('active')) renderSchedule();
+    if (document.getElementById('schedule').classList.contains('active')) {
+      renderSchedule();
+      renderSwipeCards();
+    }
   }, 60000);
 
-  // Auto-set today's date as start if never set
   const p = getProfile();
   if (!p.startDate) {
     p.startDate = new Date().toISOString().slice(0, 10);
@@ -1247,75 +2006,19 @@ function init() {
   }
 
   refreshDashboard();
+
+  if (!localStorage.getItem('prayoger_visited')) {
+    localStorage.setItem('prayoger_visited', '1');
+    setTimeout(() => {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('profile').classList.add('active');
+      document.querySelectorAll('nav button')[4].classList.add('active');
+    }, 100);
+  }
 }
 
 init();
 </script>
-
-<script>
-const clickSound = document.getElementById("clickSfx");
-
-function attachClickSounds(){
-  document.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      clickSound.currentTime=0;
-      clickSound.play();
-    });
-  });
-}
-
-function unlockBGM(){
-  const bgm=document.getElementById('bgm');
-  bgm.volume=0.3;
-  bgm.play().catch(()=>{});
-  document.removeEventListener('click',unlockBGM);
-  document.removeEventListener('touchstart',unlockBGM);
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  attachClickSounds();
-  document.addEventListener('click',unlockBGM);
-  document.addEventListener('touchstart',unlockBGM);
-});
-</script>
-
-
-<script>
-function unlockAmbience(){
-  const w=document.getElementById('waterFlow');
-  const a=document.getElementById('windAir');
-  [w,a].forEach(function(x){
-    x.volume=0.2;
-    x.play().catch(function(){});
-  });
-  document.removeEventListener('click',unlockAmbience);
-  document.removeEventListener('touchstart',unlockAmbience);
-}
-document.addEventListener('click',unlockAmbience);
-document.addEventListener('touchstart',unlockAmbience);
-
-// grass click
-var g=document.getElementById('grassClick');
-function attachGrass(){
-  document.querySelectorAll('button').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      g.currentTime=0;
-      g.volume=0.25;
-      g.play();
-    });
-  });
-}
-document.addEventListener('DOMContentLoaded',attachGrass);
-
-// first visit -> profile
-if(!localStorage.getItem('visitedOnce')){
-  localStorage.setItem('visitedOnce','1');
-  document.addEventListener('DOMContentLoaded',function(){
-    document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
-    document.getElementById('profile').classList.add('active');
-  });
-}
-</script>
-
 </body>
 </html>
