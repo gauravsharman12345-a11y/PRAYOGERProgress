@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PRAYOGER – Mind Blueprint 180</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root {
+    --red: #c40000;
+    --red-hot: #ff1a1a;
+    --red-dim: #7a0000;
+    --black: #000000;
+    --dark: #0a0a0a;
+    --panel: #111111;
+    --border: #1e1e1e;
+    --text: #e8e8e8;
+    --muted: #666;
+    --locked: #1a0000;
+    --locked-border: #3a0000;
+    --gold: #d4a017;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--black);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,0,0,0.015) 2px,
+      rgba(255,0,0,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--black);
+    border-bottom: 2px solid var(--red);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--red-hot);
+    text-shadow: 0 0 20px rgba(255,26,26,0.4);
+  }
+
+  .header-info {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .header-info span { color: var(--red-hot); }
+
+  /* CLOCK */
+  #liveClock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0;
+  }
+
+  nav button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border);
+    padding: 14px 10px;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  nav button:last-child { border-right: none; }
+
+  nav button::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  nav button:hover { color: var(--text); }
+  nav button.active { color: var(--red-hot); }
+  nav button.active::after { transform: scaleX(1); }
+
+  /* SECTIONS */
+  .section { display: none; padding: 24px 20px; max-width: 760px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--red-hot);
+    border-left: 3px solid var(--red);
+    padding-left: 12px;
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin: 20px 0 12px;
+  }
+
+  /* PANELS */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* INPUT GROUPS */
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .input-group input {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-group input:focus { border-color: var(--red); }
+  .input-group input:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--locked);
+    border-color: var(--locked-border);
+  }
+
+  .range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .range-wrapper input[type="range"] {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .range-wrapper input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--red-hot);
+    box-shadow: 0 0 8px rgba(255,26,26,0.6);
+    cursor: pointer;
+  }
+
+  .range-wrapper input[type="range"]:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .range-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    color: var(--red-hot);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--red);
+    border: none;
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    margin-top: 20px;
+  }
+
+  .btn:hover { background: var(--red-hot); box-shadow: 0 0 20px rgba(255,26,26,0.3); }
+  .btn:disabled {
+    background: var(--locked-border);
+    color: var(--muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+  }
+  .btn-outline:hover { background: var(--red); color: white; }
+
+  /* PROGRESS */
+  .progress-track {
+    width: 100%;
+    background: var(--border);
+    height: 6px;
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red-dim), var(--red-hot));
+    border-radius: 3px;
+    transition: width 0.6s ease;
+    box-shadow: 0 0 8px rgba(255,26,26,0.4);
+  }
+
+  /* DAY STATUS BANNER */
+  #dayStatusBanner {
+    padding: 14px 18px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    border-left: 4px solid;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #dayStatusBanner.status-available {
+    background: rgba(196,0,0,0.1);
+    border-color: var(--red);
+    color: var(--red-hot);
+  }
+
+  #dayStatusBanner.status-locked {
+    background: rgba(100,100,0,0.08);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  #dayStatusBanner.status-future {
+    background: rgba(50,50,50,0.3);
+    border-color: var(--muted);
+    color: var(--muted);
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--red), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: var(--red);
+    border-radius: 50%;
+    border: 2px solid var(--black);
+    box-shadow: 0 0 8px rgba(255,26,26,0.5);
+  }
+
+  .timeline-item.active-slot { border-color: var(--red); }
+  .timeline-item.active-slot::before { background: var(--red-hot); box-shadow: 0 0 12px rgba(255,26,26,0.8); }
+  .timeline-item.done::before { background: var(--gold); box-shadow: 0 0 8px rgba(212,160,23,0.5); }
+
+  .tl-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--red-hot);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .tl-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  .tl-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .tl-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    margin-top: 6px;
+  }
+
+  .tl-badge.active { background: rgba(196,0,0,0.2); color: var(--red-hot); border: 1px solid var(--red-dim); }
+  .tl-badge.done { background: rgba(212,160,23,0.1); color: var(--gold); border: 1px solid rgba(212,160,23,0.3); }
+  .tl-badge.upcoming { background: rgba(50,50,50,0.5); color: var(--muted); border: 1px solid var(--border); }
+
+  /* DAY GRID */
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: #0a0a0a;
+    cursor: default;
+  }
+
+  .day-cell.filled {
+    background: rgba(196,0,0,0.15);
+    border-color: var(--red-dim);
+    color: var(--red-hot);
+  }
+
+  .day-cell.today {
+    background: var(--red);
+    border-color: var(--red-hot);
+    color: white;
+    box-shadow: 0 0 10px rgba(255,26,26,0.4);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255,26,26,0.4); }
+    50% { box-shadow: 0 0 18px rgba(255,26,26,0.8); }
+  }
+
+  /* NOTIFICATION BADGE */
+  #notifStatus {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted);
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  #notifStatus.granted { border-color: #2a6a2a; color: #5aff5a; background: rgba(0,100,0,0.1); }
+  #notifStatus.denied { border-color: var(--locked-border); color: var(--red-dim); }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--red-hot);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* CHART */
+  .chart-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* LOCKED OVERLAY HINT */
+  .locked-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(212,160,23,0.1);
+    border: 1px solid rgba(212,160,23,0.3);
+    color: var(--gold);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  select {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 20px;
+    cursor: pointer;
+  }
+
+  select:focus { border-color: var(--red); }
+
+  /* TOAST NOTIFICATION */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    right: 20px;
+    background: var(--panel);
+    border: 1px solid var(--red);
+    border-left: 4px solid var(--red-hot);
+    color: var(--text);
+    padding: 14px 20px;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    z-index: 9998;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+    box-shadow: 0 4px 30px rgba(255,26,26,0.2);
+  }
+
+  #toast.show { transform: translateX(0); }
+
+  /* SCHEDULE SECTION */
+  .sched-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .today-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<!-- Ambient Mode 3 -->
+<audio id="waterFlow" loop preload="auto" src="data:audio/wav;base64,UklGRqxYAQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYhYAQAA"></audio>
+<audio id="windAir" loop preload="auto" src="data:audio/wav;base64,UklGRqxYAQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYhYAQAA"></audio>
+<audio id="grassClick" preload="auto" src="data:audio/wav;base64,UklGRqxYAQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYhYAQAA"></audio>
+
+<!-- 🔊 Background Music -->
+<audio id="bgm" loop preload="auto"
+src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAAAAAAAAA//uQZAAAAAADhAAAACwAAAAEAAABkYXRhAAAAAA=="></audio>
+
+<!-- 🔔 Click Sound -->
+<audio id="clickSfx" preload="auto"
+src="data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwNAAAAAAAAAAAAAAA//uQZAAAAAACHgAAAFQAAAAEAAABkYXRhAAAAAA=="></audio>
+
+
+<header>
+  <div class="header-title">PRAYOGER · 180</div>
+  <div id="liveClock">--:--:--</div>
+  <div class="header-info">
+    DAY <span id="headerDay">–</span> / 180<br>
+    <span id="headerName">–</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="show('dashboard')">DASHBOARD</button>
+  <button onclick="show('daily')">DAILY ENTRY</button>
+  <button onclick="show('schedule')">SCHEDULE</button>
+  <button onclick="show('graph')">GRAPHS</button>
+  <button onclick="show('profile')">PROFILE</button>
+</nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section active">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="statDay">–</div>
+      <div class="stat-label">Current Day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statFilled">0</div>
+      <div class="stat-label">Days Filled</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statLeft">180</div>
+      <div class="stat-label">Days Left</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0;">OVERALL PROGRESS</h3>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--red-hot);" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <h3>180-DAY MAP</h3>
+  <div class="panel">
+    <div class="day-grid" id="dayGrid"></div>
+  </div>
+
+  <h3>NOTIFICATIONS</h3>
+  <div class="panel">
+    <p style="font-size:13px; color:var(--muted); margin-bottom:10px; line-height:1.6;">
+      Enable browser notifications to receive reminders at <b style="color:var(--text)">06:00</b>, <b style="color:var(--text)">13:00</b>, <b style="color:var(--text)">18:00</b> and <b style="color:var(--text)"></b> daily.
+    </p>
+    <div id="notifStatus" class="upcoming" onclick="requestNotifPerm()">
+      <div class="dot"></div>
+      <span id="notifLabel">CLICK TO ENABLE NOTIFICATIONS</span>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY ENTRY -->
+<section id="daily" class="section">
+  <h2>DAILY ENTRY</h2>
+
+  <div id="dayStatusBanner" class="status-available">
+    <span>⬤</span>
+    <span id="bannerText">Loading…</span>
+  </div>
+
+  <div style="margin-bottom:16px;">
+    <label style="font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">VIEW DAY</label>
+    <select id="daySelect" onchange="loadDayView()"></select>
+  </div>
+
+  <div class="panel" id="entryPanel">
+    <!-- Dynamic fields -->
+    <div class="input-group">
+      <label>MOOD <span style="color:var(--muted)">(-10 to +10)</span></label>
+      <div class="range-wrapper">
+        <input type="range" id="moodInput" min="-10" max="10" value="0" oninput="document.getElementById('moodVal').textContent=this.value">
+        <div class="range-val" id="moodVal">0</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>ENERGY <span style="color:var(--muted)">(0–10)</span></label>
+      <div class="range-wrapper">
+        <input type="range" id="energyInput" min="0" max="10" value="5" oninput="document.getElementById('energyVal').textContent=this.value">
+        <div class="range-val" id="energyVal">5</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>MOTIVATION <span style="color:var(--muted)">(0–10)</span></label>
+      <div class="range-wrapper">
+        <input type="range" id="motivationInput" min="0" max="10" value="5" oninput="document.getElementById('motivVal').textContent=this.value">
+        <div class="range-val" id="motivVal">5</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>FEAR LEVEL <span style="color:var(--muted)">(0–10)</span></label>
+      <div class="range-wrapper">
+        <input type="range" id="fearInput" min="0" max="10" value="5" oninput="document.getElementById('fearVal').textContent=this.value">
+        <div class="range-val" id="fearVal">5</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>RESISTANCE <span style="color:var(--muted)">(0–10)</span></label>
+      <div class="range-wrapper">
+        <input type="range" id="resistInput" min="0" max="10" value="5" oninput="document.getElementById('resistVal').textContent=this.value">
+        <div class="range-val" id="resistVal">5</div>
+      </div>
+    </div>
+
+    <div class="input-group" style="margin-top:20px;">
+      <label>DAILY NOTES</label>
+      <textarea id="notesInput"
+        style="width:100%;background:#0d0d0d;border:1px solid var(--border);border-radius:3px;padding:10px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:80px; transition: border-color 0.2s;"
+        onfocus="this.style.borderColor='var(--red)'"
+        onblur="this.style.borderColor='var(--border)'"
+        placeholder="Anything notable today…"></textarea>
+    </div>
+
+    <button class="btn" id="saveBtn" onclick="saveDay()">LOCK IN DAY</button>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="schedule" class="section">
+  <div class="sched-header">
+    <h2 style="margin-bottom:0;">DAILY SCHEDULE</h2>
+    <div class="today-date" id="schedDate">–</div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px; padding:12px 16px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--red-hot);box-shadow:0 0 8px rgba(255,26,26,0.6);animation:pulse 2s ease-in-out infinite;"></div>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--muted);">CURRENT SLOT: </span>
+      <span id="currentSlotName" style="font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--red-hot); letter-spacing:1px;">–</span>
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <h3 style="margin-top:28px;">REMINDER TIMES</h3>
+  <div class="panel">
+    <p style="font-size:13px; color:var(--muted); line-height:1.8;">
+      Notifications fire at: 
+      <b style="color:var(--text)">06:00</b> · 
+      <b style="color:var(--text)">13:00</b> · 
+      <b style="color:var(--text)">18:00</b> · 
+      <b style="color:var(--text)"></b>
+    </p>
+    <button class="btn btn-outline" onclick="testNotification()" style="margin-top:12px; padding:10px; font-size:14px;">TEST NOTIFICATION NOW</button>
+  </div>
+</section>
+
+<!-- GRAPHS -->
+<section id="graph" class="section">
+  <h2>GRAPHS</h2>
+  <div class="chart-panel">
+    <canvas id="moodChart" height="140"></canvas>
+  </div>
+  <div class="chart-panel">
+    <canvas id="energyChart" height="140"></canvas>
+  </div>
+  <div style="text-align:center; margin-top:20px;">
+    <button class="btn btn-outline" onclick="downloadData()" style="width:auto; padding:12px 30px;">DOWNLOAD JSON</button>
+  </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="section">
+  <h2>PROFILE</h2>
+  <div class="panel">
+    <div class="input-group">
+      <label>NAME</label>
+      <input id="nameInput" type="text" placeholder="Your name">
+    </div>
+    <div class="input-group">
+      <label>AGE</label>
+      <input id="ageInput" type="number" placeholder="Age">
+    </div>
+    <div class="input-group">
+      <label>WEIGHT (KG)</label>
+      <input id="weightInput" type="number" placeholder="Weight">
+    </div>
+    <div class="input-group">
+      <label>JOURNEY START DATE <span style="color:var(--muted)">(sets Day 1)</span></label>
+      <input id="startDateInput" type="date">
+    </div>
+    <button class="btn" onclick="saveProfile()">SAVE PROFILE</button>
+  </div>
+
+  <div class="panel" style="margin-top:16px;">
+    <h3 style="margin:0 0 12px;">DANGER ZONE</h3>
+    <button class="btn" style="background:var(--locked-border); font-size:14px;" onclick="resetAll()">RESET ALL DATA</button>
+  </div>
+</section>
+
+<script>
+// ─────────────────────────────────────────
+// SCHEDULE DEFINITIONS
+// ─────────────────────────────────────────
+const SCHEDULE = [
+  { time: '05:00', label: 'WAKE UP', desc: 'Rise, hydrate, set your intention for the day', icon: '🌅' },
+  { time: '05:30', label: 'MORNING MOVEMENT', desc: 'Exercise, stretching or breathwork routine', icon: '⚡' },
+  { time: '06:00', label: 'MIND CHECK-IN', desc: 'Log your morning mood, energy & motivation → FILL ENTRY', icon: '🧠', remind: true },
+  { time: '07:00', label: 'DEEP WORK BLOCK I', desc: 'Focused high-priority task, no distractions', icon: '🔴' },
+  { time: '09:30', label: 'REVIEW & ADJUST', desc: 'Short break, review progress, plan next block', icon: '📋' },
+  { time: '10:00', label: 'DEEP WORK BLOCK II', desc: 'Second focused session on key tasks', icon: '🔴' },
+  { time: '13:00', label: 'MIDDAY CHECK-IN', desc: 'Nutrition, rest and midday mental reset', icon: '⚙️', remind: true },
+  { time: '14:00', label: 'STUDY / SKILL BLOCK', desc: 'Learning, reading or skill-building session', icon: '📖' },
+  { time: '16:30', label: 'REFLECTION WALK', desc: 'Walk outside, think without input', icon: '🚶' },
+  { time: '18:00', label: 'EVENING CHECK-IN', desc: 'Log fear, resistance, energy levels → FILL ENTRY', icon: '🌆', remind: true },
+  { time: '19:00', label: 'CREATIVE / FREE TIME', desc: 'Unstructured creative or social time', icon: '🎯' },
+  { time: '20:30', label: 'WIND DOWN', desc: 'No screens, journaling, light reading', icon: '🌙' },
+  { time: '', label: 'NIGHT REVIEW', desc: 'Final entry lock-in and tomorrow prep', icon: '📝', remind: true },
+  { time: '22:30', label: 'SLEEP', desc: 'Consistent sleep time for recovery and memory consolidation', icon: '💤' }
+];
+
+const REMINDER_TIMES = [
+  { h: 6, m: 0 }, { h: 13, m: 0 }, { h: 18, m: 0 }, { h: 21, m: 0 }
+];
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+function getProfile() { return JSON.parse(localStorage.getItem('pray_profile') || '{}'); }
+function getDays() { return JSON.parse(localStorage.getItem('pray_days') || '{}'); }
+function saveStorage(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+function getCurrentDay() {
+  const p = getProfile();
+  if (!p.startDate) return 1;
+  const start = new Date(p.startDate);
+  const now = new Date();
+  start.setHours(0,0,0,0); now.setHours(0,0,0,0);
+  const diff = Math.floor((now - start) / 86400000) + 1;
+  return Math.max(1, Math.min(180, diff));
+}
+
+// ─────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id === 'graph') renderCharts();
+  if (id === 'schedule') renderSchedule();
+  if (id === 'daily') refreshDailySection();
+  if (id === 'dashboard') refreshDashboard();
+}
+
+// ─────────────────────────────────────────
+// PROFILE
+// ─────────────────────────────────────────
+function loadProfile() {
+  const p = getProfile();
+  document.getElementById('nameInput').value = p.name || '';
+  document.getElementById('ageInput').value = p.age || '';
+  document.getElementById('weightInput').value = p.weight || '';
+  document.getElementById('startDateInput').value = p.startDate || '';
+}
+
+function saveProfile() {
+  const p = {
+    name: document.getElementById('nameInput').value,
+    age: document.getElementById('ageInput').value,
+    weight: document.getElementById('weightInput').value,
+    startDate: document.getElementById('startDateInput').value
+  };
+  saveStorage('pray_profile', p);
+  showToast('Profile saved!');
+  refreshAll();
+}
+
+// ─────────────────────────────────────────
+// DAY DROPDOWN
+// ─────────────────────────────────────────
+function buildDaySelect() {
+  const sel = document.getElementById('daySelect');
+  const cur = getCurrentDay();
+  const days = getDays();
+  sel.innerHTML = '';
+  for (let i = 1; i <= 180; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    const locked = days[i] ? ' ✓ LOCKED' : '';
+    const future = i > cur ? ' [future]' : '';
+    opt.textContent = `Day ${i}${locked}${future}`;
+    if (i > cur) opt.style.color = '#444';
+    sel.appendChild(opt);
+  }
+  sel.value = cur;
+}
+
+// ─────────────────────────────────────────
+// DAILY ENTRY
+// ─────────────────────────────────────────
+function refreshDailySection() {
+  buildDaySelect();
+  loadDayView();
+}
+
+function loadDayView() {
+  const selectedDay = parseInt(document.getElementById('daySelect').value);
+  const cur = getCurrentDay();
+  const days = getDays();
+  const dayData = days[selectedDay];
+  const banner = document.getElementById('dayStatusBanner');
+  const bannerText = document.getElementById('bannerText');
+  const saveBtn = document.getElementById('saveBtn');
+  const inputs = document.querySelectorAll('#entryPanel input, #entryPanel textarea');
+
+  if (dayData) {
+    // LOCKED
+    banner.className = 'status-locked';
+    bannerText.textContent = `DAY ${selectedDay} IS LOCKED — Data sealed, cannot be changed`;
+    saveBtn.disabled = true;
+    saveBtn.textContent = '🔒 DAY LOCKED';
+    inputs.forEach(i => i.disabled = true);
+    // Show stored values
+    setRangeVal('moodInput', 'moodVal', dayData.mood);
+    setRangeVal('energyInput', 'energyVal', dayData.energy);
+    setRangeVal('motivationInput', 'motivVal', dayData.motivation);
+    setRangeVal('fearInput', 'fearVal', dayData.fear);
+    setRangeVal('resistInput', 'resistVal', dayData.resistance);
+    document.getElementById('notesInput').value = dayData.notes || '';
+  } else if (selectedDay > cur) {
+    // FUTURE
+    banner.className = 'status-future';
+    bannerText.textContent = `DAY ${selectedDay} NOT YET REACHED — Come back on the right day`;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'NOT YOUR DAY YET';
+    inputs.forEach(i => i.disabled = true);
+    resetInputs();
+  } else {
+    // TODAY / AVAILABLE
+    banner.className = 'status-available';
+    bannerText.textContent = `DAY ${selectedDay} OPEN — Fill and lock your data now`;
+    saveBtn.disabled = false;
+    saveBtn.textContent = '🔐 LOCK IN DAY';
+    inputs.forEach(i => i.disabled = false);
+    resetInputs();
+  }
+}
+
+function setRangeVal(inputId, valId, val) {
+  document.getElementById(inputId).value = val;
+  document.getElementById(valId).textContent = val;
+}
+
+function resetInputs() {
+  setRangeVal('moodInput', 'moodVal', 0);
+  setRangeVal('energyInput', 'energyVal', 5);
+  setRangeVal('motivationInput', 'motivVal', 5);
+  setRangeVal('fearInput', 'fearVal', 5);
+  setRangeVal('resistInput', 'resistVal', 5);
+  document.getElementById('notesInput').value = '';
+}
+
+function saveDay() {
+  const selectedDay = parseInt(document.getElementById('daySelect').value);
+  const cur = getCurrentDay();
+  const days = getDays();
+
+  if (days[selectedDay]) { showToast('This day is already locked!'); return; }
+  if (selectedDay > cur) { showToast('Cannot fill a future day!'); return; }
+
+  days[selectedDay] = {
+    mood: parseInt(document.getElementById('moodInput').value),
+    energy: parseInt(document.getElementById('energyInput').value),
+    motivation: parseInt(document.getElementById('motivationInput').value),
+    fear: parseInt(document.getElementById('fearInput').value),
+    resistance: parseInt(document.getElementById('resistInput').value),
+    notes: document.getElementById('notesInput').value,
+    lockedAt: new Date().toISOString()
+  };
+
+  saveStorage('pray_days', days);
+  showToast(`Day ${selectedDay} sealed forever 🔒`);
+  refreshAll();
+  loadDayView();
+}
+
+// ─────────────────────────────────────────
+// SCHEDULE
+// ─────────────────────────────────────────
+function renderSchedule() {
+  const now = new Date();
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+
+  document.getElementById('schedDate').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+
+  let activeSlot = null;
+
+  SCHEDULE.forEach((slot, i) => {
+    const [sh, sm] = slot.time.split(':').map(Number);
+    const slotMins = sh * 60 + sm;
+    const nextSlot = SCHEDULE[i + 1];
+    const nextMins = nextSlot
+      ? nextSlot.time.split(':').map(Number).reduce((h, m) => h * 60 + m)
+      : 24 * 60;
+
+    const isActive = currentMins >= slotMins && currentMins < nextMins;
+    const isDone = currentMins >= nextMins;
+
+    if (isActive) activeSlot = slot.label;
+
+    const item = document.createElement('div');
+    item.className = `timeline-item${isActive ? ' active-slot' : isDone ? ' done' : ''}`;
+
+    let badgeHtml = '';
+    if (isActive) badgeHtml = `<div class="tl-badge active">▶ NOW</div>`;
+    else if (isDone) badgeHtml = `<div class="tl-badge done">✓ DONE</div>`;
+    else badgeHtml = `<div class="tl-badge upcoming">UPCOMING</div>`;
+
+    item.innerHTML = `
+      <div class="tl-time">${slot.time}${slot.remind ? ' 🔔' : ''}</div>
+      <div class="tl-title">${slot.icon} ${slot.label}</div>
+      <div class="tl-desc">${slot.desc}</div>
+      ${badgeHtml}
+    `;
+    tl.appendChild(item);
+  });
+
+  document.getElementById('currentSlotName').textContent = activeSlot || 'Between slots';
+}
+
+// ─────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────
+function refreshDashboard() {
+  const cur = getCurrentDay();
+  const days = getDays();
+  const filled = Object.keys(days).length;
+  const profile = getProfile();
+
+  document.getElementById('statDay').textContent = cur;
+  document.getElementById('statFilled').textContent = filled;
+  document.getElementById('statLeft').textContent = 180 - filled;
+  document.getElementById('headerDay').textContent = cur;
+  document.getElementById('headerName').textContent = profile.name || 'WARRIOR';
+
+  const pct = Math.round((filled / 180) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  renderDayGrid(cur, days);
+  updateNotifUI();
+}
+
+function renderDayGrid(cur, days) {
+  const grid = document.getElementById('dayGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 180; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (days[i] ? ' filled' : '') + (i === cur ? ' today' : '');
+    cell.title = days[i] ? `Day ${i} — Locked` : (i === cur ? `Day ${i} — Today` : `Day ${i}`);
+    cell.textContent = i;
+    grid.appendChild(cell);
+  }
+}
+
+// ─────────────────────────────────────────
+// CHARTS
+// ─────────────────────────────────────────
+let moodChart, energyChart;
+
+function renderCharts() {
+  const days = getDays();
+  const labels = [], moodData = [], energyData = [], motivData = [];
+
+  for (let i = 1; i <= 180; i++) {
+    if (days[i]) {
+      labels.push('D' + i);
+      moodData.push(days[i].mood);
+      energyData.push(days[i].energy);
+      motivData.push(days[i].motivation);
+    }
+  }
+
+  const cfg = {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#888', font: { family: 'Rajdhani' } } } },
+    scales: {
+      x: { ticks: { color: '#555' }, grid: { color: '#1a1a1a' } },
+      y: { ticks: { color: '#555' }, grid: { color: '#1a1a1a' } }
+    }
+  };
+
+  if (moodChart) moodChart.destroy();
+  moodChart = new Chart(document.getElementById('moodChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Mood',
+        data: moodData,
+        borderColor: '#c40000',
+        backgroundColor: 'rgba(196,0,0,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#ff1a1a'
+      }]
+    },
+    options: { ...cfg }
+  });
+
+  if (energyChart) energyChart.destroy();
+  energyChart = new Chart(document.getElementById('energyChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Energy', data: energyData, borderColor: '#d4a017', tension: 0.4, pointBackgroundColor: '#d4a017' },
+        { label: 'Motivation', data: motivData, borderColor: '#5a9fd4', tension: 0.4, pointBackgroundColor: '#5a9fd4' }
+      ]
+    },
+    options: { ...cfg }
+  });
+}
+
+// ─────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────
+function updateNotifUI() {
+  const el = document.getElementById('notifStatus');
+  const label = document.getElementById('notifLabel');
+  if (!('Notification' in window)) {
+    el.className = 'denied'; label.textContent = 'NOT SUPPORTED IN THIS BROWSER'; return;
+  }
+  if (Notification.permission === 'granted') {
+    el.className = 'granted'; label.textContent = 'NOTIFICATIONS ACTIVE';
+  } else if (Notification.permission === 'denied') {
+    el.className = 'denied'; label.textContent = 'NOTIFICATIONS BLOCKED — ALLOW IN BROWSER';
+  } else {
+    el.className = ''; label.textContent = 'CLICK TO ENABLE NOTIFICATIONS';
+  }
+}
+
+function requestNotifPerm() {
+  if (!('Notification' in window)) { showToast('Notifications not supported'); return; }
+  Notification.requestPermission().then(p => {
+    updateNotifUI();
+    if (p === 'granted') showToast('Notifications enabled! 🔔');
+    else showToast('Notifications blocked. Enable in browser settings.');
+  });
+}
+
+function testNotification() {
+  if (Notification.permission !== 'granted') {
+    requestNotifPerm();
+    return;
+  }
+  new Notification('PRAYOGER · Mind Blueprint', {
+    body: `Day ${getCurrentDay()} — Time to fill your entry! 🧠`,
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c40000"/><text y=".9em" font-size="90">🔴</text></svg>'
+  });
+  showToast('Test notification sent!');
+}
+
+let lastNotifMinute = -1;
+function checkReminder() {
+  if (Notification.permission !== 'granted') return;
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const minuteId = h * 60 + m;
+  if (minuteId === lastNotifMinute) return;
+
+  REMINDER_TIMES.forEach(t => {
+    if (h === t.h && m === t.m) {
+      lastNotifMinute = minuteId;
+      const cur = getCurrentDay();
+      const days = getDays();
+      if (!days[cur]) {
+        new Notification('PRAYOGER · Reminder', {
+          body: `Day ${cur}: Time to fill your Mind Blueprint entry!`,
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c40000"/><text y=".9em" font-size="90">🧠</text></svg>'
+        });
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────
+// LIVE CLOCK
+// ─────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveClock').textContent =
+    now.toLocaleTimeString('en-US', { hour12: false });
+}
+
+// ─────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─────────────────────────────────────────
+// DOWNLOAD
+// ─────────────────────────────────────────
+function downloadData() {
+  const data = { profile: getProfile(), days: getDays(), exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `prayoger_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Data downloaded!');
+}
+
+function resetAll() {
+  if (confirm('RESET ALL DATA? This cannot be undone.')) {
+    localStorage.removeItem('pray_days');
+    localStorage.removeItem('pray_profile');
+    showToast('All data reset.');
+    refreshAll();
+    loadProfile();
+  }
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+function refreshAll() {
+  refreshDashboard();
+}
+
+function init() {
+  loadProfile();
+  buildDaySelect();
+  refreshAll();
+  renderSchedule();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(checkReminder, 30000);
+  setInterval(() => {
+    if (document.getElementById('schedule').classList.contains('active')) renderSchedule();
+  }, 60000);
+
+  // Auto-set today's date as start if never set
+  const p = getProfile();
+  if (!p.startDate) {
+    p.startDate = new Date().toISOString().slice(0, 10);
+    saveStorage('pray_profile', p);
+    document.getElementById('startDateInput').value = p.startDate;
+  }
+
+  refreshDashboard();
+}
+
+init();
+</script>
+
+<script>
+const clickSound = document.getElementById("clickSfx");
+
+function attachClickSounds(){
+  document.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      clickSound.currentTime=0;
+      clickSound.play();
+    });
+  });
+}
+
+function unlockBGM(){
+  const bgm=document.getElementById('bgm');
+  bgm.volume=0.3;
+  bgm.play().catch(()=>{});
+  document.removeEventListener('click',unlockBGM);
+  document.removeEventListener('touchstart',unlockBGM);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  attachClickSounds();
+  document.addEventListener('click',unlockBGM);
+  document.addEventListener('touchstart',unlockBGM);
+});
+</script>
+
+
+<script>
+function unlockAmbience(){
+  const w=document.getElementById('waterFlow');
+  const a=document.getElementById('windAir');
+  [w,a].forEach(function(x){
+    x.volume=0.2;
+    x.play().catch(function(){});
+  });
+  document.removeEventListener('click',unlockAmbience);
+  document.removeEventListener('touchstart',unlockAmbience);
+}
+document.addEventListener('click',unlockAmbience);
+document.addEventListener('touchstart',unlockAmbience);
+
+// grass click
+var g=document.getElementById('grassClick');
+function attachGrass(){
+  document.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      g.currentTime=0;
+      g.volume=0.25;
+      g.play();
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded',attachGrass);
+
+// first visit -> profile
+if(!localStorage.getItem('visitedOnce')){
+  localStorage.setItem('visitedOnce','1');
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('profile').classList.add('active');
+  });
+}
+</script>
+
+</body>
+</html>
